@@ -7,50 +7,62 @@ description: 'A configurable, typed AI framework with swappable LLM, classifier,
 
 A configurable, typed AI framework with swappable LLM, classifier, handlers, and optional memory.
 
+<Hero
+  image="/images/hero-light.png"
+  imageDark="/images/hero-dark.png"
+  title="Build AI Applications with Confidence"
+  subtitle="StruktX provides a clean, modular architecture for building production-ready AI applications with full type safety and extensibility."
+/>
+
 <CardGroup cols={2}>
   <Card
     title="Swappable Components"
     icon="🔄"
-    href="/docs/components"
+    href="/configuration"
   >
     LLM clients, classifiers, handlers, and memory engines
   </Card>
   <Card
     title="Type Safety"
     icon="📝"
-    href="/docs/configuration"
+    href="/configuration"
   >
     Full type hints and Pydantic models
   </Card>
   <Card
     title="Configurable"
     icon="⚙️"
-    href="/docs/configuration"
+    href="/configuration"
   >
     Factory-based configuration system
   </Card>
   <Card
     title="Extensible"
     icon="🔌"
-    href="/docs/examples"
+    href="/examples"
   >
     Easy to add custom components
   </Card>
   <Card
     title="Memory Support"
     icon="🧠"
-    href="/docs/components#memory-engine"
+    href="/middleware"
   >
     Optional conversation memory
   </Card>
   <Card
     title="Middleware"
     icon="🔧"
-    href="/docs/middleware"
+    href="/middleware"
   >
     Pre/post processing hooks
   </Card>
 </CardGroup>
+
+<Info>
+  <img src="/images/checks-passed.png" alt="Quality Assurance" style="width: 24px; height: 24px; margin-right: 8px;" />
+  StruktX is production-ready with comprehensive testing and type safety
+</Info>
 
 ## Quick Install
 
@@ -82,7 +94,7 @@ A configurable, typed AI framework with swappable LLM, classifier, handlers, and
     pip install struktx[llm]
 
     # Install with vector store support
-    pip install struktx[vector]
+    uv pip install struktx[vector]
 
     # Install with all optional dependencies
     pip install struktx[all]

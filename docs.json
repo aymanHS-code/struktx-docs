@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
+  "theme": "willow",
   "name": "StruktX",
   "colors": {
     "primary": "#6366f1",
@@ -53,8 +53,12 @@
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/light.png",
+    "dark": "/logo/dark.png"
+  },
+  "hero": {
+    "light": "/images/hero-light.png",
+    "dark": "/images/hero-dark.png"
   },
   "navbar": {
     "links": [
