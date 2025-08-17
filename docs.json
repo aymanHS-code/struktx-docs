@@ -1,0 +1,86 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "StruktX",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#6366f1",
+    "light": "#818cf8",
+    "dark": "#4f46e5",
+    "anchors": {
+      "from": "#6366f1",
+      "to": "#818cf8"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/struktx/struktx"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Started",
+    "url": "/docs/introduction"
+  },
+  "anchors": [
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/struktx/struktx"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Get Started",
+      "pages": [
+        "docs/introduction",
+        "docs/architecture"
+      ]
+    },
+    {
+      "group": "Core Concepts",
+      "pages": [
+        "docs/configuration",
+        "docs/examples",
+        "docs/middleware"
+      ]
+    },
+    {
+      "group": "Reference",
+      "pages": [
+        "docs/api-reference"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "twitter": "https://twitter.com/struktx",
+    "github": "https://github.com/struktx/struktx",
+    "linkedin": "https://linkedin.com/company/struktx"
+  },
+  "backgroundImage": "/img/background.png",
+  "defaultLanguage": "python",
+  "defaultMode": "light",
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "https://github.com/struktx/struktx/issues"
+      }
+    ]
+  }
+}
