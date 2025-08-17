@@ -3,9 +3,9 @@
   "theme": "willow",
   "name": "StruktX",
   "colors": {
-    "primary": "#6366f1",
-    "light": "#818cf8",
-    "dark": "#4f46e5"
+    "primary": "#90E0EF",
+    "light": "#00B4D8",
+    "dark": "#0077B6"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -53,8 +53,8 @@
     }
   },
   "logo": {
-    "light": "/logo/light.png",
-    "dark": "/logo/dark.png"
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
   },
   "hero": {
     "light": "/images/hero-light.png",
