@@ -1,0 +1,274 @@
+---
+title: 'Configuration'
+description: 'Learn how to configure StruktX applications with factories and handlers'
+---
+
+# Configuration
+
+StruktX uses a factory-based configuration system that allows you to easily swap components and customize behavior.
+
+## StruktConfig
+
+The main configuration object accepts factories for all components:
+
+```python
+StruktConfig(
+    llm=LLMClientConfig(factory="my_pkg.llm:MyLLM"),
+    classifier=ClassifierConfig(factory=lambda **_: MyClassifier()),
+    handlers=HandlersConfig(
+        registry={"my_service": lambda llm, **_: MyHandler(llm)},
+        default_route="general",
+    ),
+    memory=MemoryConfig(factory=lambda **_: MyMemory()),
+    middleware=[lambda **_: MyMiddleware()],
+)
+```
+
+## Factory System
+
+Factories can be specified in two ways:
+
+<CodeGroup>
+  <CodeGroupItem title="Callables">
+    ```python
+    # Using lambda functions
+    factory=lambda **_: MyComponent()
+    
+    # Using regular functions
+    def create_component(**kwargs):
+        return MyComponent(**kwargs)
+    
+    factory=create_component
+    ```
+  </CodeGroupItem>
+  <CodeGroupItem title="Import Strings">
+    ```python
+    # Import from module
+    factory="my_pkg.module:MyFactory"
+    
+    # Import with specific function
+    factory="my_pkg.llm:create_llm_client"
+    ```
+  </CodeGroupItem>
+</CodeGroup>
+
+<Note>
+  Each factory receives `llm=...` and any additional parameters from config. This allows components to access the LLM client when needed.
+</Note>
+
+## Handler Configuration
+
+### Basic Handler Registry
+
+```python
+HandlersConfig(
+    registry={
+        "time_service": lambda llm, **_: TimeHandler(llm),
+        "weather_service": lambda llm, **_: WeatherHandler(llm),
+        "general": lambda llm, **_: GeneralHandler(llm),
+    },
+    default_route="general",
+)
+```
+
+### Handler Parameters
+
+Use `HandlersConfig.handler_params` for per-handler constructor arguments:
+
+```python
+HandlersConfig(
+    registry={
+        "my_service": lambda llm, **_: MyHandler(llm),
+    },
+    handler_params={
+        "my_service": {
+            "system": "You are a helpful assistant",
+            "temperature": 0.7,
+            "max_tokens": 1000
+        }
+    }
+)
+```
+
+## LLM Configuration
+
+### Basic LLM Setup
+
+```python
+LLMClientConfig(
+    factory=lambda **_: MockLLM()
+)
+```
+
+### LangChain Integration
+
+```python
+from langchain_openai import ChatOpenAI
+from strukt.langchain_helpers import LangChainLLMClient
+
+# Create LangChain LLM client
+langchain_llm = ChatOpenAI(api_key="your-openai-api-key")
+llm_client = LangChainLLMClient(langchain_llm)
+
+LLMClientConfig(
+    factory=lambda **_: llm_client
+)
+```
+
+## Classifier Configuration
+
+### Simple Keyword Classifier
+
+```python
+ClassifierConfig(
+    factory=lambda **_: SimpleKeywordClassifier()
+)
+```
+
+### LLM-Powered Classifier
+
+```python
+from strukt.classifiers.llm_classifier import DefaultLLMClassifier, DEFAULT_CLASSIFIER_TEMPLATE
+
+ClassifierConfig(
+    factory=lambda llm, **_: DefaultLLMClassifier(
+        llm=llm,
+        prompt_template=DEFAULT_CLASSIFIER_TEMPLATE,
+        allowed_types=["time_service", "weather", "general"],
+        max_parts=4,
+    )
+)
+```
+
+## Memory Configuration
+
+### In-Memory Storage
+
+```python
+MemoryConfig(
+    factory=lambda **_: InMemoryEngine()
+)
+```
+
+### Vector Store Memory
+
+```python
+from strukt.memory.vector_memory import VectorMemoryEngine
+
+MemoryConfig(
+    factory=lambda **_: VectorMemoryEngine(
+        vector_store=your_vector_store,
+        embedding_model=your_embedding_model
+    )
+)
+```
+
+## Middleware Configuration
+
+### Single Middleware
+
+```python
+middleware=[
+    lambda **_: LoggingMiddleware(verbose=True)
+]
+```
+
+### Multiple Middleware
+
+```python
+middleware=[
+    lambda **_: AuthMiddleware(valid_tokens={"token1", "token2"}),
+    lambda **_: RateLimitMiddleware(max_requests=10, window_seconds=60),
+    lambda **_: LoggingMiddleware(log_file="app.log"),
+]
+```
+
+## Complete Example
+
+```python
+from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig, ClassifierConfig, MemoryConfig
+from strukt.examples.simple_classifier import SimpleKeywordClassifier
+from strukt.examples.time_handler import TimeHandler
+from strukt.middleware import LoggingMiddleware
+
+# Create a comprehensive configuration
+config = StruktConfig(
+    # LLM Configuration
+    llm=LLMClientConfig(
+        factory=lambda **_: MockLLM()
+    ),
+    
+    # Classifier Configuration
+    classifier=ClassifierConfig(
+        factory=lambda **_: SimpleKeywordClassifier()
+    ),
+    
+    # Handler Configuration
+    handlers=HandlersConfig(
+        registry={
+            "time_service": lambda llm, **_: TimeHandler(llm),
+            "general": lambda llm, **_: GeneralHandler(llm),
+        },
+        default_route="general",
+        handler_params={
+            "time_service": {"timezone": "UTC"},
+            "general": {"system": "You are a helpful assistant"}
+        }
+    ),
+    
+    # Memory Configuration (optional)
+    memory=MemoryConfig(
+        factory=lambda **_: InMemoryEngine()
+    ),
+    
+    # Middleware Configuration (optional)
+    middleware=[
+        lambda **_: LoggingMiddleware(verbose=True),
+        lambda **_: AuthMiddleware(valid_tokens={"user_token"}),
+    ]
+)
+
+# Create the application
+app = create(config)
+```
+
+<Callout>
+  All configuration components are optional except for the classifier and handlers. You can start with minimal configuration and add components as needed.
+</Callout>
+
+## Environment Variables
+
+For sensitive configuration like API keys, use environment variables:
+
+```python
+import os
+from langchain_openai import ChatOpenAI
+
+# Load from environment
+api_key = os.getenv("OPENAI_API_KEY")
+langchain_llm = ChatOpenAI(api_key=api_key)
+
+LLMClientConfig(
+    factory=lambda **_: LangChainLLMClient(langchain_llm)
+)
+```
+
+## Configuration Best Practices
+
+<Steps>
+  <Step title="Start Simple">
+    Begin with basic configuration and add complexity as needed
+  </Step>
+  <Step title="Use Factories">
+    Leverage the factory system for flexible component creation
+  </Step>
+  <Step title="Environment Variables">
+    Store sensitive data in environment variables
+  </Step>
+  <Step title="Type Safety">
+    Use type hints and Pydantic models for better development experience
+  </Step>
+  <Step title="Modular Design">
+    Organize handlers and components by functionality
+  </Step>
+</Steps>

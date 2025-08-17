@@ -1,0 +1,353 @@
+---
+title: 'Examples'
+description: 'Practical examples of StruktX configurations and usage patterns'
+---
+
+# Examples
+
+This page provides practical examples of different StruktX configurations and usage patterns.
+
+## Basic Setup with LangChain
+
+A complete example using LangChain with OpenAI:
+
+```python
+from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig, ClassifierConfig
+from strukt.classifiers.llm_classifier import DefaultLLMClassifier, DEFAULT_CLASSIFIER_TEMPLATE
+from strukt.examples.time_handler import TimeHandler
+
+# Example with LangChain OpenAI integration
+from langchain_openai import ChatOpenAI
+from strukt.langchain_helpers import LangChainLLMClient
+
+# Create LangChain LLM client
+langchain_llm = ChatOpenAI(api_key="your-openai-api-key")
+llm_client = LangChainLLMClient(langchain_llm)
+
+app = create(StruktConfig(
+    llm=LLMClientConfig(factory=lambda **_: llm_client),
+    classifier=ClassifierConfig(
+        factory=lambda llm, **_: DefaultLLMClassifier(
+            llm=llm,
+            prompt_template=DEFAULT_CLASSIFIER_TEMPLATE,
+            allowed_types=["time_service", "weather", "general"],
+            max_parts=4,
+        )
+    ),
+    handlers=HandlersConfig(
+        registry={"time_service": lambda llm, **_: TimeHandler(llm)},
+        default_route="general",
+    ),
+))
+```
+
+## Custom Handler Example
+
+Creating a custom handler for weather information:
+
+```python
+from pydantic import BaseModel
+from strukt.interfaces import Handler, LLMClient
+from strukt.types import InvocationState, HandlerResult
+from strukt.langchain_helpers import create_structured_chain
+
+class WeatherResponse(BaseModel):
+    temperature: float
+    condition: str
+    location: str
+    description: str
+
+class WeatherHandler(Handler):
+    def __init__(self, llm: LLMClient, api_key: str):
+        self.llm = llm
+        self.api_key = api_key
+
+    def handle(self, state: InvocationState, parts: list[str]) -> HandlerResult:
+        location = parts[0] if parts else "New York"
+        
+        # Create structured chain for weather response
+        chain = create_structured_chain(
+            llm_client=self.llm,
+            prompt_template=f"""
+            You are a weather assistant. Provide weather information for {location}.
+            Return the information in a structured format.
+            """,
+            output_model=WeatherResponse,
+            input_variables=["location"],
+        )
+        
+        # Get weather data (in real app, you'd call a weather API)
+        weather_data = self._get_weather_data(location)
+        
+        # Generate response using LLM
+        response = chain.invoke({"location": location})
+        
+        return HandlerResult(
+            response=f"Weather in {response.location}: {response.temperature}°F, {response.condition}. {response.description}",
+            status="weather_service"
+        )
+    
+    def _get_weather_data(self, location: str) -> dict:
+        # Mock weather data - replace with actual API call
+        return {"temperature": 72, "condition": "Sunny"}
+```
+
+## Custom Classifier Example
+
+Creating a custom classifier for specific use cases:
+
+```python
+from strukt.interfaces import Classifier
+from strukt.types import InvocationState, QueryClassification
+import re
+
+class IntentClassifier(Classifier):
+    def __init__(self, intents: dict[str, list[str]]):
+        self.intents = intents
+    
+    def classify(self, state: InvocationState) -> QueryClassification:
+        text = state.text.lower()
+        
+        # Check for exact matches
+        for intent, keywords in self.intents.items():
+            if any(keyword in text for keyword in keywords):
+                return QueryClassification(
+                    query_type=intent,
+                    parts=[intent, text],
+                    confidence=0.9
+                )
+        
+        # Check for patterns
+        if re.search(r'\b(time|hour|clock)\b', text):
+            return QueryClassification(
+                query_type="time_service",
+                parts=["time", text],
+                confidence=0.8
+            )
+        
+        if re.search(r'\b(weather|temperature|forecast)\b', text):
+            return QueryClassification(
+                query_type="weather_service",
+                parts=["weather", text],
+                confidence=0.8
+            )
+        
+        # Default to general
+        return QueryClassification(
+            query_type="general",
+            parts=[text],
+            confidence=0.5
+        )
+
+# Usage
+intents = {
+    "time_service": ["time", "hour", "clock", "schedule"],
+    "weather_service": ["weather", "temperature", "forecast", "rain"],
+    "help_service": ["help", "support", "assist", "guide"]
+}
+
+classifier = IntentClassifier(intents)
+```
+
+## Memory Integration Example
+
+Adding conversation memory to your application:
+
+```python
+from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig, MemoryConfig
+from strukt.memory.in_memory import InMemoryEngine
+
+class ConversationalHandler(Handler):
+    def __init__(self, llm: LLMClient, memory: MemoryEngine):
+        self.llm = llm
+        self.memory = memory
+    
+    def handle(self, state: InvocationState, parts: list[str]) -> HandlerResult:
+        user_id = state.context.get("user_id", "default")
+        
+        # Get conversation history
+        history = self.memory.get(user_id)
+        
+        # Build context from history
+        context = ""
+        if history:
+            context = "\n".join([
+                f"User: {msg['user']}\nAssistant: {msg['assistant']}"
+                for msg in history[-5:]  # Last 5 messages
+            ])
+        
+        # Generate response with context
+        prompt = f"""
+        Previous conversation:
+        {context}
+        
+        Current user message: {state.text}
+        
+        Respond naturally, considering the conversation history.
+        """
+        
+        response = self.llm.invoke(prompt)
+        
+        # Store in memory
+        self.memory.add(user_id, {
+            "user": state.text,
+            "assistant": response,
+            "timestamp": "2024-01-01T12:00:00Z"
+        })
+        
+        return HandlerResult(response=response, status="conversational")
+
+# Configuration with memory
+app = create(StruktConfig(
+    llm=LLMClientConfig(factory=lambda **_: MockLLM()),
+    classifier=dict(factory=lambda **_: SimpleKeywordClassifier()),
+    handlers=HandlersConfig(
+        registry={
+            "conversational": lambda llm, memory, **_: ConversationalHandler(llm, memory),
+        },
+        default_route="conversational",
+    ),
+    memory=MemoryConfig(factory=lambda **_: InMemoryEngine()),
+))
+```
+
+## Error Handling Example
+
+Implementing robust error handling in handlers:
+
+```python
+from strukt.interfaces import Handler, LLMClient
+from strukt.types import InvocationState, HandlerResult
+import logging
+
+logger = logging.getLogger(__name__)
+
+class RobustHandler(Handler):
+    def __init__(self, llm: LLMClient, fallback_response: str = "I'm sorry, I couldn't process that request."):
+        self.llm = llm
+        self.fallback_response = fallback_response
+    
+    def handle(self, state: InvocationState, parts: list[str]) -> HandlerResult:
+        try:
+            # Validate input
+            if not state.text.strip():
+                return HandlerResult(
+                    response="Please provide a valid input.",
+                    status="error"
+                )
+            
+            # Process request
+            response = self.llm.invoke(state.text)
+            
+            # Validate response
+            if not response or len(response.strip()) < 10:
+                logger.warning(f"LLM returned short response: {response}")
+                return HandlerResult(
+                    response=self.fallback_response,
+                    status="fallback"
+                )
+            
+            return HandlerResult(response=response, status="success")
+            
+        except Exception as e:
+            logger.error(f"Error processing request: {e}", exc_info=True)
+            return HandlerResult(
+                response=self.fallback_response,
+                status="error"
+            )
+```
+
+## Async Handler Example
+
+Creating an async handler for I/O operations:
+
+```python
+import asyncio
+import aiohttp
+from strukt.interfaces import Handler, LLMClient
+from strukt.types import InvocationState, HandlerResult
+
+class AsyncWeatherHandler(Handler):
+    def __init__(self, llm: LLMClient, api_key: str):
+        self.llm = llm
+        self.api_key = api_key
+    
+    async def handle_async(self, state: InvocationState, parts: list[str]) -> HandlerResult:
+        location = parts[0] if parts else "New York"
+        
+        # Async API call
+        async with aiohttp.ClientSession() as session:
+            url = f"https://api.weatherapi.com/v1/current.json?key={self.api_key}&q={location}"
+            async with session.get(url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    weather_info = data['current']
+                    
+                    response_text = f"Weather in {location}: {weather_info['temp_f']}°F, {weather_info['condition']['text']}"
+                    return HandlerResult(response=response_text, status="success")
+                else:
+                    return HandlerResult(
+                        response=f"Sorry, I couldn't get weather data for {location}.",
+                        status="error"
+                    )
+    
+    def handle(self, state: InvocationState, parts: list[str]) -> HandlerResult:
+        # Run async handler in sync context
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            return loop.run_until_complete(self.handle_async(state, parts))
+        finally:
+            loop.close()
+```
+
+## Testing Example
+
+Testing your StruktX application:
+
+```python
+import pytest
+from unittest.mock import Mock
+from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig
+
+class TestHandler(Handler):
+    def __init__(self, llm: LLMClient):
+        self.llm = llm
+    
+    def handle(self, state: InvocationState, parts: list[str]) -> HandlerResult:
+        return HandlerResult(
+            response=f"Test response to: {state.text}",
+            status="test"
+        )
+
+@pytest.fixture
+def mock_llm():
+    llm = Mock()
+    llm.invoke.return_value = "Mock response"
+    return llm
+
+@pytest.fixture
+def test_app(mock_llm):
+    return create(StruktConfig(
+        llm=LLMClientConfig(factory=lambda **_: mock_llm),
+        classifier=dict(factory=lambda **_: SimpleKeywordClassifier()),
+        handlers=HandlersConfig(
+            registry={"test": lambda llm, **_: TestHandler(llm)},
+            default_route="test",
+        )
+    ))
+
+def test_basic_invocation(test_app):
+    result = test_app.invoke("Hello, world!", context={"user_id": "test_user"})
+    assert result.response is not None
+    assert "Hello, world!" in result.response
+
+def test_context_preservation(test_app):
+    context = {"user_id": "test_user", "session_id": "123"}
+    result = test_app.invoke("Test message", context=context)
+    assert result.context == context
+```
+
+<Callout>
+  These examples demonstrate various patterns and best practices. Adapt them to your specific use case and requirements.
+</Callout>

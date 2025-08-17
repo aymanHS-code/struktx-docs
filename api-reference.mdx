@@ -1,0 +1,428 @@
+---
+title: 'API Reference'
+description: 'Complete API reference for StruktX interfaces, types, and components'
+---
+
+# API Reference
+
+This page provides a complete reference for all StruktX interfaces, types, and components.
+
+## Core Types
+
+### StruktConfig
+
+Main configuration object for the framework.
+
+```python
+class StruktConfig:
+    llm: Optional[LLMClientConfig] = None
+    classifier: ClassifierConfig
+    handlers: HandlersConfig
+    memory: Optional[MemoryConfig] = None
+    middleware: Optional[list[Callable]] = None
+    extras: Optional[ExtrasConfig] = None
+```
+
+### InvocationState
+
+Contains the current request state:
+
+```python
+class InvocationState:
+    text: str                    # User input
+    context: dict               # Request context
+    metadata: dict              # Additional metadata
+```
+
+### QueryClassification
+
+Result of query classification:
+
+```python
+class QueryClassification:
+    query_type: str             # Handler to route to
+    parts: list[str]            # Parsed query parts
+    confidence: float           # Classification confidence
+```
+
+### HandlerResult
+
+Result from handler processing:
+
+```python
+class HandlerResult:
+    response: str               # Response text
+    status: str                 # Processing status
+    metadata: dict              # Additional metadata
+```
+
+## Interfaces
+
+### LLMClient
+
+```python
+class LLMClient(Protocol):
+    def invoke(self, text: str) -> str:
+        """Basic text completion"""
+        ...
+    
+    def structured(self, prompt: str, model: BaseModel) -> BaseModel:
+        """Structured output with Pydantic model"""
+        ...
+```
+
+### Classifier
+
+```python
+class Classifier(Protocol):
+    def classify(self, state: InvocationState) -> QueryClassification:
+        """Routes queries to appropriate handlers"""
+        ...
+```
+
+### Handler
+
+```python
+class Handler(Protocol):
+    def handle(self, state: InvocationState, parts: list[str]) -> HandlerResult:
+        """Processes queries and returns responses"""
+        ...
+```
+
+### MemoryEngine
+
+```python
+class MemoryEngine(Protocol):
+    def get(self, key: str) -> list[dict]:
+        """Retrieve conversation history"""
+        ...
+    
+    def add(self, key: str, message: dict) -> None:
+        """Add message to history"""
+        ...
+    
+    def clear(self, key: str) -> None:
+        """Clear conversation history"""
+        ...
+```
+
+### Middleware
+
+```python
+class Middleware(Protocol):
+    def before_classify(self, state: InvocationState) -> InvocationState:
+        """Called before query classification"""
+        ...
+    
+    def after_classify(self, state: InvocationState) -> InvocationState:
+        """Called after query classification"""
+        ...
+    
+    def before_handle(self, state: InvocationState) -> InvocationState:
+        """Called before handler execution"""
+        ...
+    
+    def after_handle(self, state: InvocationState) -> InvocationState:
+        """Called after handler execution"""
+        ...
+```
+
+## Configuration Classes
+
+### LLMClientConfig
+
+```python
+class LLMClientConfig:
+    factory: Union[Callable, str]    # Factory function or import string
+    params: Optional[dict] = None    # Additional parameters
+```
+
+### ClassifierConfig
+
+```python
+class ClassifierConfig:
+    factory: Union[Callable, str]    # Factory function or import string
+    params: Optional[dict] = None    # Additional parameters
+```
+
+### HandlersConfig
+
+```python
+class HandlersConfig:
+    registry: dict[str, Callable]    # Handler registry
+    default_route: str               # Default handler route
+    handler_params: Optional[dict] = None  # Per-handler parameters
+```
+
+### MemoryConfig
+
+```python
+class MemoryConfig:
+    factory: Union[Callable, str]    # Factory function or import string
+    params: Optional[dict] = None    # Additional parameters
+```
+
+### ExtrasConfig
+
+```python
+class ExtrasConfig:
+    humanlayer: HumanLayerConfig     # Human layer configuration
+```
+
+### HumanLayerConfig
+
+```python
+class HumanLayerConfig:
+    enabled: bool = False            # Whether human layer is enabled
+```
+
+## LangChain Helpers
+
+### create_structured_chain
+
+```python
+def create_structured_chain(
+    llm_client: LLMClient,
+    prompt_template: str,
+    output_model: Type[BaseModel],
+    input_variables: list[str]
+) -> StructuredChain:
+    """
+    Create a structured chain with Pydantic model output.
+    
+    Args:
+        llm_client: LLM client instance
+        prompt_template: Prompt template string
+        output_model: Pydantic model for structured output
+        input_variables: List of input variable names
+    
+    Returns:
+        StructuredChain instance
+    """
+```
+
+### LangChainLLMClient
+
+```python
+class LangChainLLMClient:
+    def __init__(self, langchain_llm):
+        """
+        Initialize with a LangChain LLM instance.
+        
+        Args:
+            langchain_llm: LangChain LLM instance (e.g., ChatOpenAI)
+        """
+    
+    def invoke(self, text: str) -> str:
+        """Basic text completion"""
+    
+    def structured(self, prompt: str, model: BaseModel) -> BaseModel:
+        """Structured output with Pydantic model"""
+```
+
+## Built-in Components
+
+### SimpleKeywordClassifier
+
+```python
+class SimpleKeywordClassifier:
+    def __init__(self, keywords: Optional[dict[str, list[str]]] = None):
+        """
+        Initialize with keyword mappings.
+        
+        Args:
+            keywords: Dictionary mapping query types to keyword lists
+        """
+    
+    def classify(self, state: InvocationState) -> QueryClassification:
+        """Classify based on keyword matching"""
+```
+
+### DefaultLLMClassifier
+
+```python
+class DefaultLLMClassifier:
+    def __init__(
+        self,
+        llm: LLMClient,
+        prompt_template: str,
+        allowed_types: list[str],
+        max_parts: int = 4
+    ):
+        """
+        Initialize LLM-powered classifier.
+        
+        Args:
+            llm: LLM client instance
+            prompt_template: Classification prompt template
+            allowed_types: List of allowed query types
+            max_parts: Maximum number of parts to extract
+        """
+    
+    def classify(self, state: InvocationState) -> QueryClassification:
+        """Classify using LLM"""
+```
+
+### TimeHandler
+
+```python
+class TimeHandler:
+    def __init__(self, llm: LLMClient):
+        """
+        Initialize time handler.
+        
+        Args:
+            llm: LLM client instance
+        """
+    
+    def handle(self, state: InvocationState, parts: list[str]) -> HandlerResult:
+        """Handle time-related queries"""
+```
+
+## Memory Engines
+
+### InMemoryEngine
+
+```python
+class InMemoryEngine:
+    def __init__(self):
+        """Initialize in-memory storage"""
+    
+    def get(self, key: str) -> list[dict]:
+        """Get conversation history"""
+    
+    def add(self, key: str, message: dict) -> None:
+        """Add message to history"""
+    
+    def clear(self, key: str) -> None:
+        """Clear conversation history"""
+```
+
+### VectorMemoryEngine
+
+```python
+class VectorMemoryEngine:
+    def __init__(self, vector_store, embedding_model):
+        """
+        Initialize vector-based memory.
+        
+        Args:
+            vector_store: Vector store instance
+            embedding_model: Embedding model instance
+        """
+    
+    def get(self, key: str) -> list[dict]:
+        """Get relevant conversation history"""
+    
+    def add(self, key: str, message: dict) -> None:
+        """Add message to vector store"""
+    
+    def clear(self, key: str) -> None:
+        """Clear conversation history"""
+```
+
+## Built-in Middleware
+
+### LoggingMiddleware
+
+```python
+class LoggingMiddleware:
+    def __init__(self, verbose: bool = False, log_file: Optional[str] = None):
+        """
+        Initialize logging middleware.
+        
+        Args:
+            verbose: Enable verbose logging
+            log_file: Custom log file path
+        """
+```
+
+### ApprovalMiddleware
+
+```python
+class ApprovalMiddleware:
+    def __init__(self, rule: Callable):
+        """
+        Initialize approval middleware.
+        
+        Args:
+            rule: Approval rule function
+        """
+```
+
+## Error Types
+
+### StruktError
+
+Base exception for StruktX errors.
+
+```python
+class StruktError(Exception):
+    """Base exception for StruktX errors"""
+```
+
+### ConfigurationError
+
+Raised when there's a configuration issue.
+
+```python
+class ConfigurationError(StruktError):
+    """Raised when there's a configuration issue"""
+```
+
+### HandlerError
+
+Raised when a handler encounters an error.
+
+```python
+class HandlerError(StruktError):
+    """Raised when a handler encounters an error"""
+```
+
+## Utility Functions
+
+### create
+
+```python
+def create(config: StruktConfig) -> StruktApp:
+    """
+    Create a StruktX application.
+    
+    Args:
+        config: Application configuration
+    
+    Returns:
+        StruktApp instance
+    """
+```
+
+### load_factory
+
+```python
+def load_factory(factory_spec: Union[Callable, str]) -> Callable:
+    """
+    Load a factory function from specification.
+    
+    Args:
+        factory_spec: Factory function or import string
+    
+    Returns:
+        Factory function
+    """
+```
+
+## Type Aliases
+
+```python
+# Common type aliases used throughout StruktX
+Factory = Union[Callable, str]
+MiddlewareFactory = Callable[..., Middleware]
+HandlerFactory = Callable[..., Handler]
+ClassifierFactory = Callable[..., Classifier]
+LLMFactory = Callable[..., LLMClient]
+MemoryFactory = Callable[..., MemoryEngine]
+```
+
+<Callout>
+  This API reference covers all the main interfaces and types in StruktX. For more detailed examples and usage patterns, see the Examples and Configuration pages.
+</Callout>

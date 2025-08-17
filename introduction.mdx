@@ -1,0 +1,143 @@
+---
+title: 'Introduction'
+description: 'A configurable, typed AI framework with swappable LLM, classifier, handlers, and optional memory'
+---
+
+# StruktX
+
+A configurable, typed AI framework with swappable LLM, classifier, handlers, and optional memory.
+
+<CardGroup cols={2}>
+  <Card
+    title="Swappable Components"
+    icon="🔄"
+    href="/docs/components"
+  >
+    LLM clients, classifiers, handlers, and memory engines
+  </Card>
+  <Card
+    title="Type Safety"
+    icon="📝"
+    href="/docs/configuration"
+  >
+    Full type hints and Pydantic models
+  </Card>
+  <Card
+    title="Configurable"
+    icon="⚙️"
+    href="/docs/configuration"
+  >
+    Factory-based configuration system
+  </Card>
+  <Card
+    title="Extensible"
+    icon="🔌"
+    href="/docs/examples"
+  >
+    Easy to add custom components
+  </Card>
+  <Card
+    title="Memory Support"
+    icon="🧠"
+    href="/docs/components#memory-engine"
+  >
+    Optional conversation memory
+  </Card>
+  <Card
+    title="Middleware"
+    icon="🔧"
+    href="/docs/middleware"
+  >
+    Pre/post processing hooks
+  </Card>
+</CardGroup>
+
+## Quick Install
+
+<Tabs>
+  <Tab title="uv (Recommended)">
+    ```bash
+    # Install with core dependencies only
+    uv pip install struktx
+
+    # Install with LLM support (LangChain)
+    uv pip install struktx[llm]
+
+    # Install with vector store support
+    uv pip install struktx[vector]
+
+    # Install with all optional dependencies
+    uv pip install struktx[all]
+
+    # Install for development
+    uv pip install struktx[dev]
+    ```
+  </Tab>
+  <Tab title="pip">
+    ```bash
+    # Install with core dependencies only
+    pip install struktx
+
+    # Install with LLM support (LangChain)
+    pip install struktx[llm]
+
+    # Install with vector store support
+    pip install struktx[vector]
+
+    # Install with all optional dependencies
+    pip install struktx[all]
+    ```
+  </Tab>
+</Tabs>
+
+## Quick Start
+
+```python
+from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig
+from strukt.examples.simple_classifier import SimpleKeywordClassifier
+from strukt.examples.time_handler import TimeHandler
+
+# Create a simple mock LLM for demonstration
+class MockLLM:
+    def invoke(self, text: str) -> str:
+        return f"Mock response to: {text}"
+    
+    def structured(self, prompt: str, model):
+        # For structured outputs, you'd implement this
+        return model(response="Mock structured response")
+
+app = create(StruktConfig(
+    llm=LLMClientConfig(factory=lambda **_: MockLLM()),
+    classifier=dict(factory=lambda **_: SimpleKeywordClassifier()),
+    handlers=HandlersConfig(
+        registry={
+            "time_service": lambda llm, **_: TimeHandler(llm),
+        },
+        default_route="general",
+    )
+))
+
+result = app.invoke("what is the time in Beirut", context={"user_id": "u1"})
+print(result.response)
+```
+
+## What is StruktX?
+
+StruktX is a Python framework for building AI applications with a clean, modular architecture. It provides:
+
+- **LLM Integration**: Support for any LLM via the `LLMClient` interface
+- **Query Classification**: Route requests to appropriate handlers
+- **Structured Outputs**: Pydantic model integration
+- **Memory Engines**: Conversation history and context
+- **Middleware System**: Pre/post processing hooks
+- **LangChain Helpers**: Easy integration with LangChain ecosystem
+
+## Requirements
+
+- Python 3.8.1+
+- Core: `pydantic>=2.0.0`, `python-dotenv>=1.0.0`
+- Optional: LangChain packages, vector stores, etc.
+
+<Note>
+  StruktX is designed to be lightweight and modular. Install only the dependencies you need for your specific use case.
+</Note>

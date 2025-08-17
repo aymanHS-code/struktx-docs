@@ -1,0 +1,159 @@
+---
+title: 'Architecture'
+description: 'Understanding the modular architecture and core components of StruktX'
+---
+
+# Architecture
+
+StruktX follows a modular architecture with these core components:
+
+<Steps>
+  <Step title="LLM Client">
+    Handles communication with language models
+  </Step>
+  <Step title="Classifier">
+    Routes queries to appropriate handlers
+  </Step>
+  <Step title="Handlers">
+    Process specific types of queries
+  </Step>
+  <Step title="Memory Engine">
+    Manages conversation history (optional)
+  </Step>
+  <Step title="Middleware">
+    Pre/post processing hooks (optional)
+  </Step>
+</Steps>
+
+## Request Flow
+
+```mermaid
+graph TD
+    A[User Input] --> B[Middleware: before_classify]
+    B --> C[Classifier]
+    C --> D[Middleware: after_classify]
+    D --> E[Middleware: before_handle]
+    E --> F[Handler]
+    F --> G[Middleware: after_handle]
+    G --> H[Response]
+```
+
+## Core Components
+
+### LLM Client
+
+Implements `interfaces.LLMClient` with methods:
+
+<CodeGroup>
+  <CodeGroupItem title="Basic Invocation">
+    ```python
+    def invoke(self, text: str) -> str:
+        # Basic text completion
+        pass
+    ```
+  </CodeGroupItem>
+  <CodeGroupItem title="Structured Output">
+    ```python
+    def structured(self, prompt: str, model: BaseModel) -> BaseModel:
+        # Structured output with Pydantic model
+        pass
+    ```
+  </CodeGroupItem>
+</CodeGroup>
+
+### Classifier
+
+Implements `interfaces.Classifier` with method:
+
+```python
+def classify(self, state: InvocationState) -> QueryClassification:
+    # Routes queries to appropriate handlers
+    pass
+```
+
+### Handler
+
+Implements `interfaces.Handler` with method:
+
+```python
+def handle(self, state: InvocationState, parts: list[str]) -> HandlerResult:
+    # Processes queries and returns responses
+    pass
+```
+
+### Memory Engine
+
+Implements `interfaces.MemoryEngine` for conversation history management:
+
+<CodeGroup>
+  <CodeGroupItem title="Get History">
+    ```python
+    def get(self, key: str) -> list[dict]:
+        # Retrieve conversation history
+        pass
+    ```
+  </CodeGroupItem>
+  <CodeGroupItem title="Add Message">
+    ```python
+    def add(self, key: str, message: dict) -> None:
+        # Add message to history
+        pass
+    ```
+  </CodeGroupItem>
+  <CodeGroupItem title="Clear History">
+    ```python
+    def clear(self, key: str) -> None:
+        # Clear conversation history
+        pass
+    ```
+  </CodeGroupItem>
+</CodeGroup>
+
+### Middleware
+
+Optional pre/post processing hooks that allow you to intercept and modify the request flow:
+
+<Table>
+  <TableHead>
+    <TableRow>
+      <TableHeader>Hook</TableHeader>
+      <TableHeader>When Called</TableHeader>
+      <TableHeader>Use Cases</TableHeader>
+    </TableRow>
+  </TableHead>
+  <TableBody>
+    <TableRow>
+      <TableCell><code>before_classify</code></TableCell>
+      <TableCell>Before query classification</TableCell>
+      <TableCell>Input validation, preprocessing, logging, rate limiting</TableCell>
+    </TableRow>
+    <TableRow>
+      <TableCell><code>after_classify</code></TableCell>
+      <TableCell>After query classification</TableCell>
+      <TableCell>Classification logging, metrics, state modification</TableCell>
+    </TableRow>
+    <TableRow>
+      <TableCell><code>before_handle</code></TableCell>
+      <TableCell>Before handler execution</TableCell>
+      <TableCell>Handler-specific setup, authorization, context enrichment</TableCell>
+    </TableRow>
+    <TableRow>
+      <TableCell><code>after_handle</code></TableCell>
+      <TableCell>After handler execution</TableCell>
+      <TableCell>Response logging, metrics, response modification</TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
+
+## Component Interaction
+
+<Callout>
+  All components are swappable and follow well-defined interfaces. This allows you to easily customize or replace any part of the system.
+</Callout>
+
+The architecture promotes:
+
+- **Separation of Concerns**: Each component has a single responsibility
+- **Loose Coupling**: Components communicate through well-defined interfaces
+- **High Cohesion**: Related functionality is grouped together
+- **Extensibility**: Easy to add new components or modify existing ones
