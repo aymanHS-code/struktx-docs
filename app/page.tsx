@@ -17,6 +17,7 @@ import WebGLPreloader from '@/components/WebGLPreloader'
 import Iridescence from '@/components/Irid'
 import LightRays from '@/components/LightRays'
 import { useTheme } from '@/lib/theme'
+import { Footer } from '@/components/footer'
 
 
  
@@ -253,6 +254,7 @@ export default function Home() {
         </div>
 
 
+
       </section>
 
       {/* Content Below Hero - Appears on Scroll */}
@@ -390,6 +392,9 @@ export default function Home() {
           </div>
         </section>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   )
 } 
