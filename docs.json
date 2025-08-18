@@ -46,7 +46,7 @@
       "anchors": [
         {
           "anchor": "GitHub",
-          "href": "https://github.com/struktx/struktx",
+          "href": "https://github.com/aymanHS-code/StruktX",
           "icon": "github"
         }
       ]
@@ -64,7 +64,7 @@
     "links": [
       {
         "label": "Support",
-        "href": "https://github.com/struktx/struktx/issues"
+        "href": "https://github.com/aymanHS-code/StruktX/issues"
       }
     ],
     "primary": {
