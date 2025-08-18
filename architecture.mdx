@@ -1,11 +1,9 @@
 ---
-title: 'Architecture'
-description: 'Understanding the modular architecture and core components of StruktX'
+title: "Architecture"
+description: "Understanding the modular architecture and core components of StruktX"
 ---
 
-# Architecture
-
-StruktX follows a modular architecture with these core components:
+## Flow
 
 <Steps>
   <Step title="LLM Client">
@@ -45,20 +43,20 @@ graph TD
 Implements `interfaces.LLMClient` with methods:
 
 <CodeGroup>
-  <CodeGroupItem title="Basic Invocation">
-    ```python
-    def invoke(self, text: str) -> str:
-        # Basic text completion
-        pass
-    ```
-  </CodeGroupItem>
-  <CodeGroupItem title="Structured Output">
-    ```python
-    def structured(self, prompt: str, model: BaseModel) -> BaseModel:
-        # Structured output with Pydantic model
-        pass
-    ```
-  </CodeGroupItem>
+
+```
+def invoke(self, text: str) -> str:
+    # Basic text completion
+    pass
+```
+
+
+```
+def structured(self, prompt: str, model: BaseModel) -> BaseModel:
+    # Structured output with Pydantic model
+    pass
+```
+
 </CodeGroup>
 
 ### Classifier
@@ -86,27 +84,27 @@ def handle(self, state: InvocationState, parts: list[str]) -> HandlerResult:
 Implements `interfaces.MemoryEngine` for conversation history management:
 
 <CodeGroup>
-  <CodeGroupItem title="Get History">
-    ```python
-    def get(self, key: str) -> list[dict]:
-        # Retrieve conversation history
-        pass
-    ```
-  </CodeGroupItem>
-  <CodeGroupItem title="Add Message">
-    ```python
-    def add(self, key: str, message: dict) -> None:
-        # Add message to history
-        pass
-    ```
-  </CodeGroupItem>
-  <CodeGroupItem title="Clear History">
-    ```python
-    def clear(self, key: str) -> None:
-        # Clear conversation history
-        pass
-    ```
-  </CodeGroupItem>
+
+```
+def get(self, key: str) -> list[dict]:
+    # Retrieve conversation history
+    pass
+```
+
+
+```
+def add(self, key: str, message: dict) -> None:
+    # Add message to history
+    pass
+```
+
+
+```
+def clear(self, key: str) -> None:
+    # Clear conversation history
+    pass
+```
+
 </CodeGroup>
 
 ### Middleware
@@ -121,24 +119,28 @@ Optional pre/post processing hooks that allow you to intercept and modify the re
       <TableHeader>Use Cases</TableHeader>
     </TableRow>
   </TableHead>
+
   <TableBody>
     <TableRow>
-      <TableCell><code>before_classify</code></TableCell>
+      <TableCell><code>before\_classify</code></TableCell>
       <TableCell>Before query classification</TableCell>
       <TableCell>Input validation, preprocessing, logging, rate limiting</TableCell>
     </TableRow>
+
     <TableRow>
-      <TableCell><code>after_classify</code></TableCell>
+      <TableCell><code>after\_classify</code></TableCell>
       <TableCell>After query classification</TableCell>
       <TableCell>Classification logging, metrics, state modification</TableCell>
     </TableRow>
+
     <TableRow>
-      <TableCell><code>before_handle</code></TableCell>
+      <TableCell><code>before\_handle</code></TableCell>
       <TableCell>Before handler execution</TableCell>
       <TableCell>Handler-specific setup, authorization, context enrichment</TableCell>
     </TableRow>
+
     <TableRow>
-      <TableCell><code>after_handle</code></TableCell>
+      <TableCell><code>after\_handle</code></TableCell>
       <TableCell>After handler execution</TableCell>
       <TableCell>Response logging, metrics, response modification</TableCell>
     </TableRow>
@@ -147,9 +149,9 @@ Optional pre/post processing hooks that allow you to intercept and modify the re
 
 ## Component Interaction
 
-<Callout>
+<Info>
   All components are swappable and follow well-defined interfaces. This allows you to easily customize or replace any part of the system.
-</Callout>
+</Info>
 
 The architecture promotes:
 
