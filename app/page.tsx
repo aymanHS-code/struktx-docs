@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Github, BookOpen } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, Suspense } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Sparkles } from '@/components/animated/Sparkles'
@@ -15,11 +15,15 @@ import SplitText from '@/components/SplitText'
 import MagicBento from '@/components/MagicBento'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import { useTheme } from '@/lib/theme'
+import LoadingSkeleton from '@/components/LoadingSkeleton'
+
+
  
 
 export default function Home() {
   const rootRef = useRef<HTMLDivElement | null>(null)
   const { theme } = useTheme()
+  const [isPageLoading, setIsPageLoading] = useState(true)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -28,9 +32,7 @@ export default function Home() {
     const ctx = gsap.context(() => {
       const q = (sel: string) => document.querySelector(sel)
 
-      if (q('.hero-badge')) gsap.from('.hero-badge', { y: -10, opacity: 0, duration: 0.6, ease: 'power2.out' })
-      if (q('.hero-title')) gsap.from('.hero-title', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', delay: 0.1 })
-      if (q('.hero-sub')) gsap.from('.hero-sub', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out', delay: 0.2 })
+      // Removed initial page load animations since we have the skeleton
 
       if (q('#showcase') && q('.feature-card')) {
         gsap.from('.feature-card', {
@@ -68,90 +70,118 @@ export default function Home() {
       ctx.revert()
     }
   }, [])
+
+  // Show loading skeleton while page is loading
+  if (isPageLoading) {
+    return (
+      <LoadingSkeleton onComplete={() => setIsPageLoading(false)} />
+    )
+  }
+
   return (
-    <div ref={rootRef} className="relative transition-colors duration-300">
-      {/* Background Components with Theme-based Transitions */}
+    <div 
+      ref={rootRef} 
+      className="relative transition-colors duration-300"
+    >
+      {/* Background Components - Load both simultaneously for smooth transitions */}
       <div className="fixed inset-0 -z-10">
+        {/* Base background to prevent white flash */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-dark-800 dark:via-dark-900 dark:to-dark-800"></div>
+        
         {/* Iridescence Background - Light Mode */}
         <div className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
           theme === 'light' ? 'opacity-100' : 'opacity-0'
         }`}>
-          <Iridescence
-            color={[0.1, 0.3, 0.6]}
-            mouseReact={true}
-            amplitude={0.1}
-            speed={1.0}
-          />
+          <Suspense fallback={null}>
+            <Iridescence
+              color={[0.1, 0.3, 0.6]}
+              mouseReact={true}
+              amplitude={0.1}
+              speed={1.0}
+            />
+          </Suspense>
         </div>
         
         {/* LightRays Background - Dark Mode */}
         <div className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
           theme === 'dark' ? 'opacity-100' : 'opacity-0'
         }`}>
-          <LightRays
-            raysOrigin="top-center"
-            raysColor="#90E0EF"
-            raysSpeed={0.2}
-            lightSpread={1.2}
-            rayLength={2.5}
-            pulsating={true}
-            fadeDistance={1}
-            saturation={1.1}
-            followMouse={true}
-            mouseInfluence={0.15}
-            noiseAmount={0.1}
-            distortion={0.05}
-          />
+          <Suspense fallback={null}>
+            <LightRays
+              raysOrigin="top-center"
+              raysColor="#90E0EF"
+              raysSpeed={0.2}
+              lightSpread={1.2}
+              rayLength={2.5}
+              pulsating={true}
+              fadeDistance={1}
+              saturation={1.1}
+              followMouse={true}
+              mouseInfluence={0.15}
+              noiseAmount={0.1}
+              distortion={0.05}
+            />
+          </Suspense>
         </div>
       </div>
       
-      <Sparkles />
+      <Suspense fallback={null}>
+        <Sparkles />
+      </Suspense>
       
              {/* Centered Hero Section - Full Viewport Height */}
        <section className="h-screen flex flex-col justify-center items-center relative z-10">
         {/* Glass Navigation */}
         <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-full max-w-7xl px-4 sm:px-6 lg:px-8">
-          <GlassSurface
-            width="100%"
-            height={60}
-            borderRadius={50}
-            backgroundOpacity={0.1}
-            saturation={1}
-            blur={11}
-            brightness={50}
-            opacity={0.93}
-          >
-            <div className="flex items-center justify-between px-8 w-full">
-              <SplitText
-                text="StruktX"
-                className="text-xl font-bold tracking-tight text-white"
-                delay={200}
-                duration={2}
-                ease="elastic.out(1, 0.3)"
-                splitType="words"
-                from={{ opacity: 0, y: 5 }}
-                to={{ opacity: 1, y: 0 }}
-                threshold={0.6}
-                rootMargin="-10px"
-                textAlign="center"
-                onLetterAnimationComplete={() => {}}
-              />
-              <div className="flex items-center space-x-4">
-                <ThemeToggle />
-                <a href="https://github.com/struktx/struktx" target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" size="sm" className="bg-white/10 hover:bg-white/20 border-white/20 text-white">
-                    <Github className="h-4 w-4 mr-2" />
-                    GitHub
-                  </Button>
-                </a>
-                <a href="https://struktx.mintlify.app" target="_blank" rel="noopener noreferrer">
-                  <Button size="sm" className="bg-white/10 hover:bg-white/20 text-white">
-                    Get Started
-                  </Button>
-                </a>
+          <Suspense fallback={
+            <div className="w-full h-15 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 dark:border-white/10 animate-pulse shadow-lg"></div>
+          }>
+            <GlassSurface
+              width="100%"
+              height={60}
+              borderRadius={50}
+              backgroundOpacity={0.1}
+              saturation={1}
+              blur={11}
+              brightness={50}
+              opacity={0.93}
+            >
+              <div className="flex items-center justify-between px-8 w-full">
+                <Suspense fallback={
+                  <div className="text-xl font-bold tracking-tight text-white">StruktX</div>
+                }>
+                  <SplitText
+                    text="StruktX"
+                    className="text-xl font-bold tracking-tight text-white"
+                    delay={200}
+                    duration={2}
+                    ease="elastic.out(1, 0.3)"
+                    splitType="words"
+                    from={{ opacity: 0, y: 5 }}
+                    to={{ opacity: 1, y: 0 }}
+                    threshold={0.6}
+                    rootMargin="-10px"
+                    textAlign="center"
+                    onLetterAnimationComplete={() => {}}
+                  />
+                </Suspense>
+                <div className="flex items-center space-x-4">
+                  <ThemeToggle />
+                  <a href="https://github.com/struktx/struktx" target="_blank" rel="noopener noreferrer">
+                    <Button variant="outline" size="sm" className="bg-white/10 hover:bg-white/20 border-white/20 text-white">
+                      <Github className="h-4 w-4 mr-2" />
+                      GitHub
+                    </Button>
+                  </a>
+                  <a href="https://struktx.mintlify.app" target="_blank" rel="noopener noreferrer">
+                    <Button size="sm" className="bg-white/10 hover:bg-white/20 text-white">
+                      Get Started
+                    </Button>
+                  </a>
+                </div>
               </div>
-            </div>
-          </GlassSurface>
+            </GlassSurface>
+          </Suspense>
         </div>
 
         {/* Hero Content - Centered */}
@@ -170,37 +200,50 @@ export default function Home() {
             <br />
               A lean core with swappable pieces.
             </p> */}
-                         <SplitText
-             text="A lean core with swappable pieces."
-             className="flex items-center justify-center hero-sub mt-6 text-lg leading-8 text-dark-300 max-w-2xl mx-auto"
-             delay={330}
-             duration={2}
-             ease="elastic.out(1, 0.3)"
-             splitType="words"
-             from={{ opacity: 0, y: 5 }}
-             to={{ opacity: 1, y: 0 }}
-             threshold={0.6}
-             rootMargin="-10px"
-             textAlign="center"
-             onLetterAnimationComplete={() => {}}
-             animateOnMount={true}
-           />
-
+            <Suspense fallback={
+              <p className="flex items-center justify-center hero-sub mt-6 text-lg leading-8 text-dark-300 max-w-2xl mx-auto">
+                A lean core with swappable pieces.
+              </p>
+            }>
+              <SplitText
+                text="A lean core with swappable pieces."
+                className="flex items-center justify-center hero-sub mt-6 text-lg leading-8 text-dark-300 max-w-2xl mx-auto"
+                delay={330}
+                duration={2}
+                ease="elastic.out(1, 0.3)"
+                splitType="words"
+                from={{ opacity: 0, y: 5 }}
+                to={{ opacity: 1, y: 0 }}
+                threshold={0.6}
+                rootMargin="-10px"
+                textAlign="center"
+                onLetterAnimationComplete={() => {}}
+                animateOnMount={true}
+              />
+            </Suspense>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-10">
-            <GlassSurface width={180} height={50} borderRadius={25} backgroundOpacity={0.15} saturation={1.1} blur={8} brightness={70} opacity={0.9}>
-              <a href="https://struktx.mintlify.app" target="_blank" rel="noopener noreferrer" className="h-full w-full flex items-center justify-center text-white font-medium">
-                Get Started
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
-            </GlassSurface>
-            <GlassSurface width={180} height={50} borderRadius={25} backgroundOpacity={0.08} saturation={1} blur={8} brightness={60} opacity={0.8}>
-              <a href="https://github.com/aymanhs-code/StruktX" target="_blank" rel="noopener noreferrer" className="h-full w-full flex items-center justify-center text-white/90 font-medium">
-                <Github className="mr-2 h-5 w-5" />
-                View on GitHub
-              </a>
-            </GlassSurface>
+            <Suspense fallback={
+              <div className="w-45 h-12 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 dark:border-white/10 animate-pulse shadow-lg"></div>
+            }>
+              <GlassSurface width={180} height={50} borderRadius={25} backgroundOpacity={0.15} saturation={1.1} blur={8} brightness={70} opacity={0.9}>
+                <a href="https://struktx.mintlify.app" target="_blank" rel="noopener noreferrer" className="h-full w-full flex items-center justify-center text-white font-medium">
+                  Get Started
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </a>
+              </GlassSurface>
+            </Suspense>
+            <Suspense fallback={
+              <div className="w-45 h-12 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 dark:border-white/10 animate-pulse shadow-lg"></div>
+            }>
+              <GlassSurface width={180} height={50} borderRadius={25} backgroundOpacity={0.08} saturation={1} blur={8} brightness={60} opacity={0.8}>
+                <a href="https://github.com/aymanhs-code/StruktX" target="_blank" rel="noopener noreferrer" className="h-full w-full flex items-center justify-center text-white/90 font-medium">
+                  <Github className="mr-2 h-5 w-5" />
+                  View on GitHub
+                </a>
+              </GlassSurface>
+            </Suspense>
           </div>
         </div>
 
@@ -221,24 +264,72 @@ export default function Home() {
               </p>
             </div>
             
-            <MagicBento
-              textAutoHide={false}
-              enableStars={true}
-              enableSpotlight={true}
-              enableBorderGlow={true}
-              disableAnimations={false}
-              spotlightRadius={400}
-              particleCount={15}
-              enableTilt={true}
-              glowColor="255, 255, 255"
-              clickEffect={true}
-              enableMagnetism={true}
-            />
+            <Suspense fallback={
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {[...Array(6)].map((_, i) => (
+                  <div 
+                    key={i} 
+                    className="h-48 bg-white/10 dark:bg-white/5 backdrop-blur-sm rounded-2xl animate-pulse border border-white/20 dark:border-white/10 shadow-lg"
+                    style={{
+                      animationDelay: `${i * 0.1}s`
+                    }}
+                  >
+                    <div className="p-6 h-full flex flex-col">
+                      <div className="w-20 h-4 bg-white/20 dark:bg-white/10 rounded mb-4"></div>
+                      <div className="w-full h-6 bg-white/20 dark:bg-white/10 rounded mb-3"></div>
+                      <div className="w-3/4 h-4 bg-white/15 dark:bg-white/8 rounded mb-2"></div>
+                      <div className="w-1/2 h-4 bg-white/15 dark:bg-white/8 rounded"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            }>
+              <MagicBento
+                textAutoHide={false}
+                enableStars={true}
+                enableSpotlight={true}
+                enableBorderGlow={true}
+                disableAnimations={false}
+                spotlightRadius={400}
+                particleCount={15}
+                enableTilt={true}
+                glowColor="255, 255, 255"
+                clickEffect={true}
+                enableMagnetism={true}
+              />
+            </Suspense>
           </div>
         </section>
 
         {/* Code Showcase */}
-        <CodeShowcase className="py-24 code-showcase" />
+        <Suspense fallback={
+          <div className="py-24">
+            <div className="text-center mb-16">
+              <div className="w-48 h-8 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded mx-auto mb-4 animate-pulse border border-white/20 dark:border-white/10"></div>
+              <div className="w-80 h-6 bg-white/15 dark:bg-white/8 backdrop-blur-sm rounded mx-auto animate-pulse border border-white/20 dark:border-white/10"></div>
+            </div>
+            <div className="bg-white/10 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-8 animate-pulse border border-white/20 dark:border-white/10 shadow-xl">
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-32 h-4 bg-white/20 dark:bg-white/10 rounded"></div>
+                <div className="w-16 h-4 bg-white/20 dark:bg-white/10 rounded"></div>
+              </div>
+              <div className="space-y-4">
+                {[...Array(8)].map((_, i) => (
+                  <div 
+                    key={i} 
+                    className="h-4 bg-white/15 dark:bg-white/8 rounded"
+                    style={{ 
+                      width: `${Math.random() * 30 + 70}%`,
+                      animationDelay: `${i * 0.05}s`
+                    }}
+                  ></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        }>
+          <CodeShowcase className="py-24 code-showcase" />
+        </Suspense>
 
         {/* CTA Section */}
         <section className="py-24">

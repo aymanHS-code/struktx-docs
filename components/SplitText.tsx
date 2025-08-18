@@ -48,7 +48,7 @@ const SplitText: React.FC<SplitTextProps> = ({
     animationCompletedRef.current = false;
 
     const absoluteLines = splitType === "lines";
-    if (absoluteLines) el.style.position = "relative";
+    if (absoluteLines) (el as HTMLElement).style.position = "relative";
 
     let splitter;
     try {
@@ -84,7 +84,7 @@ const SplitText: React.FC<SplitTextProps> = ({
     }
 
     targets.forEach((t) => {
-      t.style.willChange = "transform, opacity";
+      (t as HTMLElement).style.willChange = "transform, opacity";
     });
 
     const tl = gsap.timeline({
@@ -161,7 +161,7 @@ const SplitText: React.FC<SplitTextProps> = ({
     return () => {
       tl.kill();
       if (scrollTriggerRef.current) {
-        scrollTriggerRef.current.kill();
+        (scrollTriggerRef.current as any).kill();
         scrollTriggerRef.current = null;
       }
       gsap.killTweensOf(targets);
