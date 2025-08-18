@@ -7,7 +7,7 @@
     "light": "#00B4D8",
     "dark": "#0077B6"
   },
-  "favicon": "/logo-blue.png",
+  "favicon": "favicon.ico",
   "navigation": {
     "tabs": [
       {
@@ -53,8 +53,8 @@
     }
   },
   "logo": {
-    "light": "/nobg-both.png",
-    "dark": "/nobg-both.png"
+    "light": "/logo/nobg-both-white.png",
+    "dark": "/logo/nobg-both-white.png"
   },
   "hero": {
     "light": "/images/hero-light.png",

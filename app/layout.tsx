@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/lib/theme'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://struktx.ai'),
   title: 'StruktX - AI Framework',
   description: 'A configurable, typed AI framework with swappable LLM, classifier, handlers, and optional memory. Built for developers who need flexibility and type safety.',
   keywords: ['AI', 'framework', 'Python', 'LLM', 'machine learning', 'type safety', 'configurable'],

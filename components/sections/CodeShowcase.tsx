@@ -30,10 +30,10 @@ export function CodeShowcase({ className }: { className?: string }) {
   return (
     <section className={cn("relative", className)}>
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <div className="glass-panel gradient-border p-8">
+        <div className="glass-panel gradient-border p-8 shine">
           <div className="text-center mb-8">
-            <h3 className="text-2xl font-semibold text-white">Build in minutes</h3>
-            <p className="text-dark-300 mt-2">Install and ship with a few lines of code</p>
+            <h3 className="text-2xl font-semibold text-dark-900 dark:text-white">Build in minutes</h3>
+            <p className="text-dark-600 dark:text-white/70 mt-2">Install and ship with a few lines of code</p>
           </div>
           <div className="space-y-6">
             <CodeBlock language="bash" code={installCode} />
