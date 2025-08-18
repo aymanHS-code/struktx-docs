@@ -1,9 +1,7 @@
 ---
-title: 'Middleware'
-description: 'Learn how to use and create middleware for pre/post processing in StruktX'
+title: "Middleware"
+description: "Learn how to use and create middleware for pre/post processing in StruktX"
 ---
-
-# Middleware
 
 Middleware in StruktX allows you to intercept and modify the request flow at different stages. This is useful for logging, authentication, rate limiting, and other cross-cutting concerns.
 
@@ -298,7 +296,7 @@ middleware=[
 ```
 
 <Note>
-  The order matters! Authentication and rate limiting should typically come before logging and metrics.
+  The order matters\! Authentication and rate limiting should typically come before logging and metrics.
 </Note>
 
 ## Error Handling
@@ -317,6 +315,6 @@ class ValidationMiddleware(Middleware):
         return state
 ```
 
-<Callout>
+<Info>
   Middleware is a powerful feature for adding cross-cutting concerns to your StruktX application. Use it to implement logging, authentication, rate limiting, and other infrastructure concerns.
-</Callout>
+</Info>
