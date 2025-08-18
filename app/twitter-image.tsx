@@ -91,10 +91,10 @@ export default async function Image() {
               textAlign: 'center',
               padding: '60px 40px',
               position: 'relative',
-              zIndex: 1,
+              zIndex: 1
             }}
           >
-            {/* Logo */}
+            {/* Blue Logo - Middle */}
             <div
               style={{
                 display: 'flex',
@@ -104,70 +104,29 @@ export default async function Image() {
               }}
             >
               <img
-                src={logoWhiteData as any}
+                src={logoBlueData as any}
                 alt="StruktX"
-                width="120"
-                height="120"
-                style={{
-                  borderRadius: '24px',
-                  boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1)',
-                }}
+                width={200}
+                height={200}
               />
             </div>
 
-            {/* Title */}
+            {/* White Logo - Bottom */}
             <div
               style={{
-                fontSize: '64px',
-                fontWeight: 'bold',
-                color: 'white',
-                marginBottom: '20px',
-                textShadow: '0 4px 8px rgba(0, 0, 0, 0.3)',
-                letterSpacing: '-0.02em',
-                lineHeight: 1.1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              StruktX
-            </div>
-
-            {/* Description */}
-            <div
-              style={{
-                fontSize: '32px',
-                color: 'rgba(255, 255, 255, 0.9)',
-                maxWidth: '800px',
-                lineHeight: 1.4,
-                textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-              }}
-            >
-              A lean core with swappable pieces
-            </div>
-
-            {/* Tagline */}
-            <div
-              style={{
-                fontSize: '24px',
-                color: 'rgba(255, 255, 255, 0.7)',
-                marginTop: '20px',
-                fontStyle: 'italic',
-                textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-              }}
-            >
-              A lean core with swappable pieces
+              <img
+                src={logoWhiteData as any}
+                alt="StruktX"
+                width={600}
+                height={120}
+              />
             </div>
           </div>
-
-          {/* Bottom accent */}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: '8px',
-              background: 'linear-gradient(90deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%)',
-            }}
-          />
         </div>
       ),
       {
@@ -176,7 +135,7 @@ export default async function Image() {
     );
   } catch (e: any) {
     console.log(`${e.message}`);
-    return new Response(`${e.message}`, {
+    return new Response(`Failed to generate the image`, {
       status: 500,
     });
   }

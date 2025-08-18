@@ -81,23 +81,6 @@ export default async function Image() {
             }}
           />
 
-          {/* logo */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-            }}
-          >
-            <img
-              src={logoBlueData as any}
-              alt="StruktX"
-              width="50%"
-              height="120"
-            />
-          </div>
-
           {/* Main content */}
           <div
             style={{
@@ -108,10 +91,10 @@ export default async function Image() {
               textAlign: 'center',
               padding: '60px 40px',
               position: 'relative',
-              zIndex: 1,
+              zIndex: 1
             }}
           >
-            {/* Logo */}
+            {/* Blue Logo - Middle */}
             <div
               style={{
                 display: 'flex',
@@ -121,10 +104,26 @@ export default async function Image() {
               }}
             >
               <img
+                src={logoBlueData as any}
+                alt="StruktX"
+                width={200}
+                height={200}
+              />
+            </div>
+
+            {/* White Logo - Bottom */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <img
                 src={logoWhiteData as any}
                 alt="StruktX"
-                width="50%"
-                height="120"
+                width={600}
+                height={120}
               />
             </div>
           </div>
