@@ -1,255 +1,188 @@
 "use client"
 
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Code, Zap, Shield, Layers, Brain, Github, BookOpen } from 'lucide-react'
-import Link from 'next/link'
+import { ArrowRight, Github, BookOpen, Wand2 } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { Navigation } from '@/components/navigation'
-import { Footer } from '@/components/footer'
-import { Background } from '@/components/animated/Background'
-import { CodeBlock } from '@/components/ui/code-block'
+import { useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { Sparkles } from '@/components/animated/Sparkles'
+import { CodeShowcase } from '@/components/sections/CodeShowcase'
+import Iridescence from '@/components/Irid'
+import GlassSurface from '@/components/GlassSurface'
+ 
 
 export default function Home() {
+  const rootRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    gsap.registerPlugin(ScrollTrigger)
+    const ctx = gsap.context(() => {
+      const q = (sel: string) => document.querySelector(sel)
+
+      if (q('.hero-badge')) gsap.from('.hero-badge', { y: -10, opacity: 0, duration: 0.6, ease: 'power2.out' })
+      if (q('.hero-title')) gsap.from('.hero-title', { y: 30, opacity: 0, duration: 0.8, ease: 'power3.out', delay: 0.1 })
+      if (q('.hero-sub')) gsap.from('.hero-sub', { y: 20, opacity: 0, duration: 0.8, ease: 'power3.out', delay: 0.2 })
+
+      if (q('#showcase') && q('.feature-card')) {
+        gsap.from('.feature-card', {
+          scrollTrigger: { trigger: '#showcase', start: 'top 80%' },
+          y: 40,
+          opacity: 0,
+          duration: 0.7,
+          ease: 'power2.out',
+          stagger: 0.12,
+        })
+      }
+
+      if (q('.code-showcase')) {
+        gsap.from('.code-showcase', {
+          scrollTrigger: { trigger: '.code-showcase', start: 'top 85%' },
+          y: 30,
+          opacity: 0,
+          duration: 0.8,
+          ease: 'power2.out',
+        })
+      }
+
+      if (q('.cta-card')) {
+        gsap.from('.cta-card', {
+          scrollTrigger: { trigger: '.cta-card', start: 'top 85%' },
+          scale: 0.98,
+          opacity: 0,
+          duration: 0.7,
+          ease: 'power2.out',
+        })
+      }
+    }, rootRef)
+
+    return () => ctx.revert()
+  }, [])
   return (
-    <div className="min-h-screen relative">
-      <Background />
-      <Navigation />
+    <div ref={rootRef} className="min-h-screen relative">
+      {/* Iridescence Background */}
+      <div className="absolute inset-0 -z-10">
+        <Iridescence
+          color={[0.2, 0.4, 0.8]}
+          mouseReact={true}
+          amplitude={0.1}
+          speed={1.0}
+        />
+      </div>
+      
+      <Sparkles />
+      
+      {/* Glass Navigation */}
+      <div className="pt-6">
+        <div className="mx-auto max-w-7xl px-4">
+          <GlassSurface
+            className="mx-auto"
+            width="50%"
+            height={60}
+            borderRadius={50}
+            backgroundOpacity={0.1}
+            saturation={1}
+            blur={11}
+            brightness={50}
+            opacity={0.93}
+          >
+                        <div className="flex items-center justify-center px-8 w-full">
+              <h1 className="text-xl font-bold tracking-tight text-white">
+                StruktX
+              </h1>
+            </div>
+          </GlassSurface>
+        </div>
+      </div>
+
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-20 pb-16">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-36 pb-28">
           <div className="text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="mb-8"
-            >
-              <div className="inline-flex items-center rounded-full bg-primary-100 dark:bg-primary-900/30 px-4 py-2 text-sm font-medium text-primary-700 dark:text-primary-300 mb-6">
-                <Code className="mr-2 h-4 w-4" />
-                Configurable, Typed AI Framework
+            <div className="mb-10">
+              <div className="flex justify-center mb-6">
+                {/* <div className="hero-badge inline-flex items-center rounded-full bg-white/10 dark:bg-white/5 px-4 py-2 text-xs font-medium text-dark-600 dark:text-dark-300 ring-1 ring-white/10">
+                  Introducing
+                </div> */}
               </div>
-              <h1 className="text-4xl font-bold tracking-tight text-dark-900 dark:text-white sm:text-6xl lg:text-7xl">
-                Build AI Apps with
-                <span className="gradient-text"> Confidence</span>
-              </h1>
-              <p className="mt-6 text-lg leading-8 text-dark-600 dark:text-dark-300 max-w-3xl mx-auto">
-                StruktX is a configurable, typed AI framework with swappable LLM, classifier, handlers, and optional memory. 
-                Built for developers who need flexibility and type safety.
+              <div className="mt-6 flex justify-center">
+                <img src="/logo.svg" alt="StruktX" className="h-24 sm:h-32 lg:h-40 w-auto" />
+              </div>
+              <p className="hero-sub mt-6 text-lg leading-8 text-dark-300 max-w-2xl mx-auto">
+                Minimal, typed, swappable. Built for engineers, made to ship.
               </p>
-            </motion.div>
+            </div>
             
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-10"
-            >
-              <Button size="lg" className="text-base px-8 py-4">
-                Get Started
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button variant="outline" size="lg" className="text-base px-8 py-4">
-                <Github className="mr-2 h-5 w-5" />
-                View on GitHub
-              </Button>
-            </motion.div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-10">
+              <GlassSurface width={180} height={50} borderRadius={25} backgroundOpacity={0.15} saturation={1.1} blur={8} brightness={70} opacity={0.9}>
+                <a href="https://mintlify.struktx.app" target="_blank" rel="noopener noreferrer" className="h-full w-full flex items-center justify-center text-white font-medium">
+                  Get Started
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </a>
+              </GlassSurface>
+              <GlassSurface width={180} height={50} borderRadius={25} backgroundOpacity={0.08} saturation={1} blur={8} brightness={60} opacity={0.8}>
+                <a href="https://github.com/struktx/struktx" target="_blank" rel="noopener noreferrer" className="h-full w-full flex items-center justify-center text-white/90 font-medium">
+                  <Github className="mr-2 h-5 w-5" />
+                  View on GitHub
+                </a>
+              </GlassSurface>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-24 bg-white dark:bg-dark-900">
+      {/* Minimal Showcase */}
+      <section id="showcase" className="pt-12 pb-28 bg-transparent">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-dark-900 dark:text-white sm:text-4xl">
-              Why Choose StruktX?
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              Minimal. Typed. Extensible.
             </h2>
-            <p className="mt-4 text-lg text-dark-600 dark:text-dark-300">
-              Everything you need to build production-ready AI applications
+            <p className="mt-4 text-lg text-dark-300">
+              A lean core with swappable pieces to fit your app.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              viewport={{ once: true }}
-              className="card p-6"
-            >
-              <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900/30 mb-4">
-                <Layers className="h-6 w-6 text-primary-600" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+            <div className="p-0 feature-card">
+              <div className="h-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl p-6">
+                <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-white/10 mb-4">
+                  <Wand2 className="h-6 w-6 text-primary-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">Swappable Components</h3>
+                <p className="text-dark-300">Swap LLMs, classifiers, handlers, memory—without changing your app code.</p>
               </div>
-              <h3 className="text-xl font-semibold text-dark-900 dark:text-white mb-2">
-                Swappable Components
-              </h3>
-              <p className="text-dark-600 dark:text-dark-300">
-                LLM clients, classifiers, handlers, and memory engines that you can easily swap and customize.
-              </p>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              viewport={{ once: true }}
-              className="card p-6"
-            >
-              <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900/30 mb-4">
-                <Shield className="h-6 w-6 text-primary-600" />
+            <div className="p-0 feature-card">
+              <div className="h-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl p-6">
+                <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-white/10 mb-4">
+                  <Wand2 className="h-6 w-6 text-primary-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">Type Safety</h3>
+                <p className="text-dark-300">Strong typing and Pydantic-first models for maintainable code.</p>
               </div>
-              <h3 className="text-xl font-semibold text-dark-900 dark:text-white mb-2">
-                Type Safety
-              </h3>
-              <p className="text-dark-600 dark:text-dark-300">
-                Fully typed system alongside Pydantic-first models for robust, maintainable code.
-              </p>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              viewport={{ once: true }}
-              className="card p-6"
-            >
-              <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900/30 mb-4">
-                <Zap className="h-6 w-6 text-primary-600" />
+            <div className="p-0 feature-card">
+              <div className="h-full rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl p-6">
+                <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-white/10 mb-4">
+                  <Wand2 className="h-6 w-6 text-primary-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">Configurable</h3>
+                <p className="text-dark-300">Factory config adapts to your domain. Compose only what you need.</p>
               </div>
-              <h3 className="text-xl font-semibold text-dark-900 dark:text-white mb-2">
-                Configurable
-              </h3>
-              <p className="text-dark-600 dark:text-dark-300">
-                Factory-based configuration system that adapts to your specific needs and use cases.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="card p-6"
-            >
-              <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900/30 mb-4">
-                <Code className="h-6 w-6 text-primary-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-dark-900 dark:text-white mb-2">
-                Extensible
-              </h3>
-              <p className="text-dark-600 dark:text-dark-300">
-                Easy to add custom components and extend functionality with well-defined interfaces.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              viewport={{ once: true }}
-              className="card p-6"
-            >
-              <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900/30 mb-4">
-                <Brain className="h-6 w-6 text-primary-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-dark-900 dark:text-white mb-2">
-                Memory Support
-              </h3>
-              <p className="text-dark-600 dark:text-dark-300">
-                Optional conversation memory and context management for sophisticated AI interactions.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              viewport={{ once: true }}
-              className="card p-6"
-            >
-              <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-100 dark:bg-primary-900/30 mb-4">
-                <ArrowRight className="h-6 w-6 text-primary-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-dark-900 dark:text-white mb-2">
-                Middleware
-              </h3>
-              <p className="text-dark-600 dark:text-dark-300">
-                Pre/post processing hooks for logging, validation, and custom business logic.
-              </p>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Quick Start Section */}
-      <section className="py-24 bg-gradient-to-br from-dark-50 to-primary-50 dark:from-dark-800 dark:to-primary-900/10">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-dark-900 dark:text-white sm:text-4xl">
-              Get Started in Minutes
-            </h2>
-            <p className="mt-4 text-lg text-dark-600 dark:text-dark-300">
-              Install and start building with StruktX today
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <h3 className="text-2xl font-semibold text-dark-900 dark:text-white mb-4">
-                Quick Install
-              </h3>
-              <div className="space-y-4">
-                <CodeBlock
-                  language="bash"
-                  code={`# Install with core dependencies only
-uv pip install struktx
-
-# Install with LLM support (LangChain)
-uv pip install struktx[llm]
-
-# Install with all optional dependencies
-uv pip install struktx[all]`}
-                />
-              </div>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <h3 className="text-2xl font-semibold text-dark-900 dark:text-white mb-4">
-                Quick Start
-              </h3>
-              <CodeBlock
-                language="python"
-                code={`from strukt import create, StruktConfig, HandlersConfig
-from strukt.examples.simple_classifier import SimpleKeywordClassifier
-from strukt.examples.time_handler import TimeHandler
-
-app = create(StruktConfig(
-  classifier=dict(factory=lambda **_: SimpleKeywordClassifier()),
-  handlers=HandlersConfig(
-    registry={"time_service": lambda llm, **_: TimeHandler(llm)},
-    default_route="general",
-  ),
-))
-
-result = app.invoke("what is the time in Beirut")`}
-              />
-            </motion.div>
-          </div>
-        </div>
-      </section>
+      {/* Code Showcase */}
+      <CodeShowcase className="py-24 code-showcase" />
 
       {/* CTA Section */}
-      <section className="py-24 bg-primary-600">
+      <section className="py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -257,26 +190,25 @@ result = app.invoke("what is the time in Beirut")`}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-4">
-              Ready to Build the Future?
-            </h2>
-            <p className="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
-              Join developers who are already building powerful AI applications with StruktX
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="secondary" size="lg" className="text-base px-8 py-4">
-                <BookOpen className="mr-2 h-5 w-5" />
-                Read Documentation
-              </Button>
-              <Button variant="outline" size="lg" className="text-base px-8 py-4 border-white text-white hover:bg-white hover:text-primary-600">
-                <Github className="mr-2 h-5 w-5" />
-                Star on GitHub
-              </Button>
+            <div className="mx-auto rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-xl p-12">
+              <div className="text-center">
+                <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-3">Ready to Build?</h2>
+                <p className="text-dark-300 mb-8">Start with the docs or explore the codebase.</p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button size="lg" className="text-base px-8 py-4 bg-white/10 hover:bg-white/20 border-white/10">
+                    <BookOpen className="mr-2 h-5 w-5" />
+                    Read Documentation
+                  </Button>
+                  <Button variant="outline" size="lg" className="text-base px-8 py-4 bg-white/5 hover:bg-white/10 border-white/10">
+                    <Github className="mr-2 h-5 w-5" />
+                    Star on GitHub
+                  </Button>
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
-      <Footer />
     </div>
   )
 } 

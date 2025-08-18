@@ -35,21 +35,10 @@ export function Background() {
       });
     });
 
-    const onMouseMove = (e: MouseEvent) => {
-      const { innerWidth, innerHeight } = window;
-      const dx = (e.clientX - innerWidth / 2) / innerWidth;
-      const dy = (e.clientY - innerHeight / 2) / innerHeight;
-
-      gsap.to(container, {
-        x: dx * 30,
-        y: dy * 30,
-        duration: 0.6,
-        ease: "power2.out",
-      });
+    // Remove background translation to avoid moving out of bounds
+    return () => {
+      // no-op cleanup
     };
-
-    window.addEventListener("mousemove", onMouseMove);
-    return () => window.removeEventListener("mousemove", onMouseMove);
   }, []);
 
   return (

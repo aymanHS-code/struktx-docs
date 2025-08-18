@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { ThemeProvider } from '@/lib/theme'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'StruktX - Configurable, Typed AI Framework',
+  title: 'StruktX - AI Framework',
   description: 'A configurable, typed AI framework with swappable LLM, classifier, handlers, and optional memory. Built for developers who need flexibility and type safety.',
   keywords: ['AI', 'framework', 'Python', 'LLM', 'machine learning', 'type safety', 'configurable'],
   authors: [{ name: 'StruktX Team' }],
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
     icon: '/logo.svg',
   },
   openGraph: {
-    title: 'StruktX - Configurable, Typed AI Framework',
+    title: 'StruktX - AI Framework',
     description: 'A configurable, typed AI framework with swappable LLM, classifier, handlers, and optional memory.',
     type: 'website',
     url: 'https://struktx.ai',
@@ -35,7 +36,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${inter.className} antialiased`}>
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )

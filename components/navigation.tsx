@@ -1,31 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Menu, X, Sun, Moon, Github } from 'lucide-react'
+import { Menu, X, Github } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTheme } from '@/lib/theme'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
-  const [isDark, setIsDark] = useState(false)
+  const { theme } = useTheme()
 
-  useEffect(() => {
-    const isDarkMode = document.documentElement.classList.contains('dark')
-    setIsDark(isDarkMode)
-  }, [])
-
-  const toggleDarkMode = () => {
-    const newDarkMode = !isDark
-    setIsDark(newDarkMode)
-    document.documentElement.classList.toggle('dark', newDarkMode)
-  }
-
-  const navItems = [
-    { name: 'Documentation', href: '/docs' },
-    { name: 'Examples', href: '/examples' },
-    { name: 'API Reference', href: '/api' },
-  ]
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/60 dark:bg-dark-900/40 backdrop-blur-xl border-b border-white/20 dark:border-white/10">
@@ -33,37 +19,26 @@ export function Navigation() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3">
-            <img src="/nobg-both.png" alt="StruktX" className="h-8 w-auto" />
+            <img src="/logo.svg" alt="StruktX" className="h-8 w-auto brightness-110 drop-shadow-[0_0_20px_rgba(144,224,239,0.25)]" />
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-dark-600 dark:text-dark-300 hover:text-dark-900 dark:hover:text-white transition-colors"
-              >
-                {item.name}
-              </Link>
-            ))}
+          {}
           </div>
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleDarkMode}
-              className="w-9 h-9 p-0"
-            >
-              {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
-            <Button variant="outline" size="sm">
-              <Github className="h-4 w-4 mr-2" />
-              GitHub
-            </Button>
-            <Button size="sm">Get Started</Button>
+            <ThemeToggle />
+            <a href="https://github.com/struktx/struktx" target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="sm">
+                <Github className="h-4 w-4 mr-2" />
+                GitHub
+              </Button>
+            </a>
+            <a href="https://mintlify.struktx.app" target="_blank" rel="noopener noreferrer">
+              <Button size="sm">Get Started</Button>
+            </a>
           </div>
 
           {/* Mobile menu button */}
@@ -90,32 +65,20 @@ export function Navigation() {
             className="md:hidden bg-white dark:bg-dark-900 border-b border-dark-200 dark:border-dark-700"
           >
             <div className="px-4 py-4 space-y-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="block text-dark-600 dark:text-dark-300 hover:text-dark-900 dark:hover:text-white transition-colors"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
+              {}
               <div className="pt-4 border-t border-dark-200 dark:border-dark-700">
-                <div className="flex items-center justify-between">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={toggleDarkMode}
-                  >
-                    {isDark ? <Sun className="h-4 w-4 mr-2" /> : <Moon className="h-4 w-4 mr-2" />}
-                    {isDark ? 'Light Mode' : 'Dark Mode'}
-                  </Button>
+                              <div className="flex items-center justify-between">
+                <ThemeToggle />
+                <a href="https://github.com/struktx/struktx" target="_blank" rel="noopener noreferrer">
                   <Button variant="outline" size="sm">
                     <Github className="h-4 w-4 mr-2" />
                     GitHub
                   </Button>
+                </a>
                 </div>
-                <Button className="w-full mt-4">Get Started</Button>
+                <a href="https://mintlify.struktx.app" target="_blank" rel="noopener noreferrer" className="block mt-4">
+                  <Button className="w-full">Get Started</Button>
+                </a>
               </div>
             </div>
           </motion.div>
