@@ -49,7 +49,6 @@ const WebGLPreloader: React.FC<WebGLPreloaderProps> = ({ onPreloadComplete }) =>
           antialias: true,
           preserveDrawingBuffer: false,
           powerPreference: 'default',
-          failIfMajorPerformanceCaveat: false,
         });
 
         // Preload LightRays (Dark theme)
@@ -62,7 +61,6 @@ const WebGLPreloader: React.FC<WebGLPreloaderProps> = ({ onPreloadComplete }) =>
           antialias: true,
           preserveDrawingBuffer: false,
           powerPreference: 'default',
-          failIfMajorPerformanceCaveat: false,
         });
 
         // Initialize basic shaders to warm up WebGL context
@@ -100,8 +98,8 @@ const WebGLPreloader: React.FC<WebGLPreloaderProps> = ({ onPreloadComplete }) =>
         darkRenderer.render({ scene: darkMesh });
 
         // Clean up
-        lightRenderer.dispose();
-        darkRenderer.dispose();
+        lightRenderer.gl.getExtension('WEBGL_lose_context')?.loseContext();
+        darkRenderer.gl.getExtension('WEBGL_lose_context')?.loseContext();
         document.body.removeChild(lightContainer);
         document.body.removeChild(darkContainer);
 
