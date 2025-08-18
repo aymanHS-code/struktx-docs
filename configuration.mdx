@@ -1,11 +1,11 @@
 ---
-title: 'Configuration'
-description: 'Learn how to configure StruktX applications with factories and handlers'
+title: "Configuration"
+description: "Learn how to configure StruktX applications with factories and handlers"
 ---
 
-# Configuration
-
-StruktX uses a factory-based configuration system that allows you to easily swap components and customize behavior.
+<Info>
+  StruktX uses a factory-based configuration system that allows you to easily swap components and customize behavior.
+</Info>
 
 ## StruktConfig
 
@@ -29,27 +29,27 @@ StruktConfig(
 Factories can be specified in two ways:
 
 <CodeGroup>
-  <CodeGroupItem title="Callables">
-    ```python
-    # Using lambda functions
-    factory=lambda **_: MyComponent()
-    
-    # Using regular functions
-    def create_component(**kwargs):
-        return MyComponent(**kwargs)
-    
-    factory=create_component
-    ```
-  </CodeGroupItem>
-  <CodeGroupItem title="Import Strings">
-    ```python
-    # Import from module
-    factory="my_pkg.module:MyFactory"
-    
-    # Import with specific function
-    factory="my_pkg.llm:create_llm_client"
-    ```
-  </CodeGroupItem>
+
+```
+# Using lambda functions
+factory=lambda **_: MyComponent()
+
+# Using regular functions
+def create_component(**kwargs):
+    return MyComponent(**kwargs)
+
+factory=create_component
+```
+
+
+```
+# Import from module
+factory="my_pkg.module:MyFactory"
+
+# Import with specific function
+factory="my_pkg.llm:create_llm_client"
+```
+
 </CodeGroup>
 
 <Note>
@@ -232,9 +232,9 @@ config = StruktConfig(
 app = create(config)
 ```
 
-<Callout>
+<Info>
   All configuration components are optional except for the classifier and handlers. You can start with minimal configuration and add components as needed.
-</Callout>
+</Info>
 
 ## Environment Variables
 
