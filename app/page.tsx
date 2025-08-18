@@ -8,14 +8,15 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Sparkles } from '@/components/animated/Sparkles'
 import { CodeShowcase } from '@/components/sections/CodeShowcase'
-import Iridescence from '@/components/Irid'
-import LightRays from '@/components/LightRays'
 import GlassSurface from '@/components/GlassSurface'
 import SplitText from '@/components/SplitText'
 import MagicBento from '@/components/MagicBento'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
-import { useTheme } from '@/lib/theme'
 import LoadingSkeleton from '@/components/LoadingSkeleton'
+import WebGLPreloader from '@/components/WebGLPreloader'
+import Iridescence from '@/components/Irid'
+import LightRays from '@/components/LightRays'
+import { useTheme } from '@/lib/theme'
 
 
  
@@ -24,6 +25,7 @@ export default function Home() {
   const rootRef = useRef<HTMLDivElement | null>(null)
   const { theme } = useTheme()
   const [isPageLoading, setIsPageLoading] = useState(true)
+  const [isWebGLPreloaded, setIsWebGLPreloaded] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -74,7 +76,10 @@ export default function Home() {
   // Show loading skeleton while page is loading
   if (isPageLoading) {
     return (
-      <LoadingSkeleton onComplete={() => setIsPageLoading(false)} />
+      <>
+        <WebGLPreloader onPreloadComplete={() => setIsWebGLPreloaded(true)} />
+        <LoadingSkeleton onComplete={() => setIsPageLoading(false)} />
+      </>
     )
   }
 
@@ -83,7 +88,7 @@ export default function Home() {
       ref={rootRef} 
       className="relative transition-colors duration-300"
     >
-      {/* Background Components - Load both simultaneously for smooth transitions */}
+      {/* Background Components */}
       <div className="fixed inset-0 -z-10">
         {/* Base background to prevent white flash */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-dark-800 dark:via-dark-900 dark:to-dark-800"></div>
