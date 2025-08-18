@@ -1,68 +1,32 @@
 ---
-title: 'Introduction'
-description: 'A configurable, typed AI framework with swappable LLM, classifier, handlers, and optional memory'
+title: "Introduction"
+description: "A configurable, typed AI framework with swappable LLM, classifier, handlers, and optional memory"
 ---
 
 # StruktX
 
 A configurable, typed AI framework with swappable LLM, classifier, handlers, and optional memory.
 
-<Hero
-  image="/images/hero-light.png"
-  imageDark="/images/hero-dark.png"
-  title="Build AI Applications with Confidence"
-  subtitle="StruktX provides a clean, modular architecture for building production-ready AI applications with full type safety and extensibility."
-/>
-
 <CardGroup cols={2}>
-  <Card
-    title="Swappable Components"
-    icon="🔄"
-    href="/configuration"
-  >
+  <Card title="Swappable Components" icon="arrows-repeat" iconType="regular" href="/configuration">
     LLM clients, classifiers, handlers, and memory engines
   </Card>
-  <Card
-    title="Type Safety"
-    icon="📝"
-    href="/configuration"
-  >
-    Full type hints and Pydantic models
+  <Card title="Type Safety" icon="note-sticky" href="/configuration">
+    Fully typed system alongside Pydantic-first models
   </Card>
-  <Card
-    title="Configurable"
-    icon="⚙️"
-    href="/configuration"
-  >
+  <Card title="Configurable" icon="wrench-simple" href="/configuration">
     Factory-based configuration system
   </Card>
-  <Card
-    title="Extensible"
-    icon="🔌"
-    href="/examples"
-  >
+  <Card title="Extensible" icon="plug" href="/examples">
     Easy to add custom components
   </Card>
-  <Card
-    title="Memory Support"
-    icon="🧠"
-    href="/middleware"
-  >
+  <Card title="Memory Support" icon="head-side-brain" href="/middleware">
     Optional conversation memory
   </Card>
-  <Card
-    title="Middleware"
-    icon="🔧"
-    href="/middleware"
-  >
+  <Card title="Middleware" icon="arrow-progress" href="/middleware">
     Pre/post processing hooks
   </Card>
 </CardGroup>
-
-<Info>
-  <img src="/images/checks-passed.png" alt="Quality Assurance" style="width: 24px; height: 24px; margin-right: 8px;" />
-  StruktX is production-ready with comprehensive testing and type safety
-</Info>
 
 ## Quick Install
 
@@ -71,16 +35,16 @@ A configurable, typed AI framework with swappable LLM, classifier, handlers, and
     ```bash
     # Install with core dependencies only
     uv pip install struktx
-
+    
     # Install with LLM support (LangChain)
     uv pip install struktx[llm]
-
+    
     # Install with vector store support
     uv pip install struktx[vector]
-
+    
     # Install with all optional dependencies
     uv pip install struktx[all]
-
+    
     # Install for development
     uv pip install struktx[dev]
     ```
@@ -89,13 +53,13 @@ A configurable, typed AI framework with swappable LLM, classifier, handlers, and
     ```bash
     # Install with core dependencies only
     pip install struktx
-
+    
     # Install with LLM support (LangChain)
     pip install struktx[llm]
-
+    
     # Install with vector store support
     uv pip install struktx[vector]
-
+    
     # Install with all optional dependencies
     pip install struktx[all]
     ```
@@ -146,7 +110,7 @@ StruktX is a Python framework for building AI applications with a clean, modular
 
 ## Requirements
 
-- Python 3.8.1+
+- Python 3.8.1\+
 - Core: `pydantic>=2.0.0`, `python-dotenv>=1.0.0`
 - Optional: LangChain packages, vector stores, etc.
 
