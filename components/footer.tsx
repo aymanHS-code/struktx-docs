@@ -14,8 +14,8 @@ export function Footer() {
             <img src="/nobg-both.png" alt="StruktX" className="h-6 w-auto" />
           </Link>
           <div className="flex items-center gap-4 text-sm text-dark-300">
-            <a href="https://mintlify.struktx.app" target="_blank" rel="noopener noreferrer" className="hover:text-white">Docs</a>
-            <a href="https://github.com/struktx/struktx" target="_blank" rel="noopener noreferrer" className="hover:text-white">GitHub</a>
+            <a href="https://struktx.mintlify.app" target="_blank" rel="noopener noreferrer" className="hover:text-white">Docs</a>
+            <a href="https://github.com/aymanhs-code/StruktX" target="_blank" rel="noopener noreferrer" className="hover:text-white">GitHub</a>
             <span className="opacity-70">© {currentYear}</span>
           </div>
         </div>

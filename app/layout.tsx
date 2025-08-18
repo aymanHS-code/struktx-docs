@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   keywords: ['AI', 'framework', 'Python', 'LLM', 'machine learning', 'type safety', 'configurable'],
   authors: [{ name: 'StruktX Team' }],
   icons: {
-    icon: '/logo.svg',
+    icon: '/logo-blue.png',
   },
   openGraph: {
     title: 'StruktX - AI Framework',

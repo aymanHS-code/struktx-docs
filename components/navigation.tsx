@@ -36,7 +36,7 @@ export function Navigation() {
                 GitHub
               </Button>
             </a>
-            <a href="https://mintlify.struktx.app" target="_blank" rel="noopener noreferrer">
+            <a href="https://struktx.mintlify.app" target="_blank" rel="noopener noreferrer">
               <Button size="sm">Get Started</Button>
             </a>
           </div>
@@ -76,7 +76,7 @@ export function Navigation() {
                   </Button>
                 </a>
                 </div>
-                <a href="https://mintlify.struktx.app" target="_blank" rel="noopener noreferrer" className="block mt-4">
+                <a href="https://struktx.mintlify.app" target="_blank" rel="noopener noreferrer" className="block mt-4">
                   <Button className="w-full">Get Started</Button>
                 </a>
               </div>

@@ -78,7 +78,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4">
           <GlassSurface
             className="mx-auto"
-            width="50%"
+            width="18%"
             height={60}
             borderRadius={50}
             backgroundOpacity={0.1}
@@ -107,22 +107,26 @@ export default function Home() {
                 </div> */}
               </div>
               <div className="mt-6 flex justify-center">
-                <img src="/logo.svg" alt="StruktX" className="h-24 sm:h-32 lg:h-40 w-auto" />
+                <img src="/logo-white.png" alt="StruktX" className="h-24 sm:h-32 lg:h-40 w-auto" />
               </div>
               <p className="hero-sub mt-6 text-lg leading-8 text-dark-300 max-w-2xl mx-auto">
-                Minimal, typed, swappable. Built for engineers, made to ship.
+                Built for engineers, made to ship.
+              <br />
+                A lean core with swappable pieces.
+
+
               </p>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-10">
               <GlassSurface width={180} height={50} borderRadius={25} backgroundOpacity={0.15} saturation={1.1} blur={8} brightness={70} opacity={0.9}>
-                <a href="https://mintlify.struktx.app" target="_blank" rel="noopener noreferrer" className="h-full w-full flex items-center justify-center text-white font-medium">
+                <a href="https://struktx.mintlify.app" target="_blank" rel="noopener noreferrer" className="h-full w-full flex items-center justify-center text-white font-medium">
                   Get Started
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </a>
               </GlassSurface>
               <GlassSurface width={180} height={50} borderRadius={25} backgroundOpacity={0.08} saturation={1} blur={8} brightness={60} opacity={0.8}>
-                <a href="https://github.com/struktx/struktx" target="_blank" rel="noopener noreferrer" className="h-full w-full flex items-center justify-center text-white/90 font-medium">
+                <a href="https://github.com/aymanhs-code/StruktX" target="_blank" rel="noopener noreferrer" className="h-full w-full flex items-center justify-center text-white/90 font-medium">
                   <Github className="mr-2 h-5 w-5" />
                   View on GitHub
                 </a>
@@ -135,13 +139,13 @@ export default function Home() {
       {/* Minimal Showcase */}
       <section id="showcase" className="pt-12 pb-28 bg-transparent">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+          <div className="text-center pt-20 mb-16">
+            {/* <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
               Minimal. Typed. Extensible.
-            </h2>
-            <p className="mt-4 text-lg text-dark-300">
+            </h2> */}
+            {/* <p className="mt-4 text-lg text-dark-300">
               A lean core with swappable pieces to fit your app.
-            </p>
+            </p> */}
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
@@ -195,14 +199,39 @@ export default function Home() {
                 <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-3">Ready to Build?</h2>
                 <p className="text-dark-300 mb-8">Start with the docs or explore the codebase.</p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button size="lg" className="text-base px-8 py-4 bg-white/10 hover:bg-white/20 border-white/10">
-                    <BookOpen className="mr-2 h-5 w-5" />
-                    Read Documentation
-                  </Button>
-                  <Button variant="outline" size="lg" className="text-base px-8 py-4 bg-white/5 hover:bg-white/10 border-white/10">
-                    <Github className="mr-2 h-5 w-5" />
-                    Star on GitHub
-                  </Button>
+                  <a
+                    href="https://struktx.mintlify.app"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button
+                      asChild
+                      size="lg"
+                      className="text-base px-8 py-4 bg-white/10 hover:bg-white/20 border-white/10"
+                    >
+                      <>
+                        <BookOpen className="mr-2 h-5 w-5" />
+                        Read Documentation
+                      </>
+                    </Button>
+                  </a>
+                  <a
+                    href="https://github.com/aymanHS-code/StruktX"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="lg"
+                      className="text-base px-8 py-4 bg-white/5 hover:bg-white/10 border-white/10"
+                    >
+                      <>
+                        <Github className="mr-2 h-5 w-5" />
+                        Star on GitHub
+                      </>
+                    </Button>
+                  </a>
                 </div>
               </div>
             </div>
