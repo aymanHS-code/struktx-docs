@@ -55,7 +55,7 @@ app = create(StruktConfig(
 app.invoke("what is the time in Beirut?")
 ```
 
-## Upstash Vector Memory + Scoped Injection
+## Upstash Vector Memory \+ Scoped Injection
 
 ```python
 from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig, ClassifierConfig, MemoryConfig
@@ -90,7 +90,9 @@ result = app.invoke("I live in Beirut, what's the time?", context={"user_id": "u
 ```
 
 <Info>
-  Memory is automatically injected into LLM prompts using <code>user_id</code> and <code>unit_id</code> from <code>context</code>. Use <code>app.add_memory</code> or the memory extraction middleware to populate durable memories.
+  Memory is automatically injected into LLM prompts using `user_id` and `unit_id` from `context`.
+
+  Use `app.add_memory` or the memory extraction middleware to populate durable memories.
 </Info>
 
 ## Custom Handler Example
@@ -347,49 +349,6 @@ class AsyncWeatherHandler(Handler):
     def handle(self, state: InvocationState, parts: list[str]) -> HandlerResult:
         # Run async handler in sync context (simplified for example)
         return asyncio.run(self.handle_async(state, parts))
-```
-
-## Testing Example
-
-Testing your StruktX application:
-
-```python
-import pytest
-from unittest.mock import Mock
-from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig
-
-class TestHandler(Handler):
-    def __init__(self, llm: LLMClient):
-        self.llm = llm
-    
-    def handle(self, state: InvocationState, parts: list[str]) -> HandlerResult:
-        return HandlerResult(
-            response=f"Test response to: {state.text}",
-            status="test"
-        )
-
-@pytest.fixture
-def test_app():
-    return create(StruktConfig(
-        llm=LLMClientConfig(factory="langchain_openai:ChatOpenAI", params={"model": "gpt-4o-mini"}),
-        classifier=dict(factory="strukt.classifiers.llm_classifier:DefaultLLMClassifier",
-        params={"max_parts": 4, "allowed_types": ["time_service", "general", "memory_extraction"],
-        "prompt_template": DEFAULT_CLASSIFIER_TEMPLATE}),
-        handlers=HandlersConfig(
-            registry={"test": TestHandler},
-            default_route="test",
-        )
-    ))
-
-def test_basic_invocation(test_app):
-    result = test_app.invoke("Hello, world!", context={"user_id": "test_user"})
-    assert result.response is not None
-    assert "Hello, world!" in result.response
-
-def test_context_preservation(test_app):
-    context = {"user_id": "test_user", "session_id": "123"}
-    result = test_app.invoke("Test message", context=context)
-    assert result.context == context
 ```
 
 <Info>

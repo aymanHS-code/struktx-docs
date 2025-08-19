@@ -5,6 +5,7 @@ description: "Learn how to configure StruktX applications with factories and han
 
 <Info>
   StruktX uses a flexible factory-based configuration system. You can pass factories as callables, classes, instances, or import strings like <code>
+  
   "module:attr"</code>
 
   . Plain dicts for component configs are also accepted and coerced into dataclasses.
@@ -59,19 +60,7 @@ factory="my_pkg.llm:MyLLMClass"
 </CodeGroup>
 
 <Note>
-  Builder progressively injects <code>
-  llm</code>
-
-  , <code>
-  memory</code>
-
-  , and <code>
-  store</code>
-
-   into factories if their signatures accept them. Additional <code>
-  params</code>
-
-   are forwarded.
+  Builder progressively injects `llm`, `memory`, and `store` and store into factories if their signatures accept them. Additional `params`are forwarded.
 </Note>
 
 ## Handler Configuration
@@ -167,19 +156,7 @@ MemoryConfig(
 ```
 
 <Info>
-  With <code>
-  augment_llm=True</code>
-
-  , all LLM calls receive relevant memory snippets automatically. Provide <code>
-  context</code>
-
-   with <code>
-  user_id</code>
-
-   and optional <code>
-  unit_id</code>
-
-   for scoping.
+  With `augment_llm=True`, all LLM calls receive relevant memory snippets automatically. Provide `context`with `user_id`and optional `unit_id`for scoping.
 </Info>
 
 ## Middleware Configuration
