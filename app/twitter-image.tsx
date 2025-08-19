@@ -111,6 +111,20 @@ export default async function Image() {
               />
             </div>
 
+            {/* Tagline */}
+            <div
+              style={{
+                fontSize: 56,
+                fontWeight: 800,
+                color: '#ffffff',
+                letterSpacing: 0.5,
+                textShadow: '0 2px 8px rgba(0,0,0,0.35)',
+                marginBottom: 24,
+              }}
+            >
+              Natural Language → Action
+            </div>
+
             {/* White Logo - Bottom */}
             <div
               style={{

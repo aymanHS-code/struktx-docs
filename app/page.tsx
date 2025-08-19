@@ -207,6 +207,27 @@ export default function Home() {
               A lean core with swappable pieces.
             </p> */}
             <Suspense fallback={
+              <h1 className="mt-8 text-4xl sm:text-6xl font-extrabold tracking-tight text-dark-900 dark:text-white">
+                Natural Language → Action
+              </h1>
+            }>
+              <SplitText
+                text="Natural Language → Action"
+                className="mt-8 pb-8 text-4xl sm:text-6xl font-extrabold tracking-tight text-dark-900 dark:text-white"
+                delay={180}
+                duration={1.6}
+                ease="elastic.out(1, 0.3)"
+                splitType="words"
+                from={{ opacity: 0, y: 10 }}
+                to={{ opacity: 1, y: 0 }}
+                threshold={0.6}
+                rootMargin="-10px"
+                textAlign="center"
+                onLetterAnimationComplete={() => {}}
+                animateOnMount={true}
+              />
+            </Suspense>
+            <Suspense fallback={
               <p className="flex items-center justify-center hero-sub mt-6 text-lg leading-8 text-dark-300 max-w-2xl mx-auto">
                 A lean core with swappable pieces.
               </p>
