@@ -44,14 +44,14 @@ Implements `interfaces.LLMClient` with methods:
 
 <CodeGroup>
 
-```
+```python text
 def invoke(self, text: str) -> str:
     # Basic text completion
     pass
 ```
 
 
-```
+```python structured
 def structured(self, prompt: str, model: BaseModel) -> BaseModel:
     # Structured output with Pydantic model
     pass
@@ -85,21 +85,21 @@ Implements `interfaces.MemoryEngine` for conversation history management:
 
 <CodeGroup>
 
-```
+```python get
 def get(self, key: str) -> list[dict]:
     # Retrieve conversation history
     pass
 ```
 
 
-```
+```python add
 def add(self, key: str, message: dict) -> None:
     # Add message to history
     pass
 ```
 
 
-```
+```python clear
 def clear(self, key: str) -> None:
     # Clear conversation history
     pass
