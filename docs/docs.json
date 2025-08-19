@@ -70,7 +70,7 @@
     "primary": {
       "type": "button",
       "label": "Get Started",
-      "href": "https://struktx.ai"
+      "href": "https://struktx.vercel.app"
     }
   },
   "contextual": {
