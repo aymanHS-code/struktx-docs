@@ -117,16 +117,7 @@ app.invoke("what is the time in Beirut?", context={"user_id": "123"})
 ```
 
 <Info>
-  If <code>
-  OPENAI_API_KEY</code>
-
-   is set and no <code>
-  llm</code>
-
-   is provided, a sensible default LLM client is selected automatically. Otherwise, a minimal <code>
-  SimpleLLMClient</code>
-
-   is used.
+  If `OPENAI_API_KEY`is set and no `llm`is provided, a sensible default LLM client is selected automatically. Otherwise, a minimal `SimpleLLMClient`is used.
 </Info>
 
 ## Quick Start with Memory \+ Middleware
@@ -156,16 +147,7 @@ result = app.invoke("I live in Beirut, what's the time?", context={"user_id": "u
 ```
 
 <Info>
-  Memory can be scoped by <code>
-  user_id</code>
-
-   and <code>
-  unit_id</code>
-
-  . With <code>
-  augment_llm=True</code>
-
-  , StruktX automatically injects relevant, scoped memory into prompts.
+  Memory can be scoped by `user_id`and `unit_id`. With `augment_llm=True`, StruktX automatically injects relevant, scoped memory into prompts.
 </Info>
 
 ## What is StruktX?
