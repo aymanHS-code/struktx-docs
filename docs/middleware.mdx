@@ -66,17 +66,17 @@ from strukt.middleware import MiddlewareConfig
 from strukt.examples.time_handler import TimeHandler
 
 app = create(StruktConfig(
-    llm=LLMClientConfig(factory="langchain_openai:ChatOpenAI", params={"model": "gpt-4o-mini"}),
-    classifier=dict(factory="strukt.classifiers.llm_classifier:DefaultLLMClassifier",
-    params={"max_parts": 4, "allowed_types": ["time_service", "general", "memory_extraction"],
-    "prompt_template": DEFAULT_CLASSIFIER_TEMPLATE}),
+    llm=LLMClientConfig("langchain_openai:ChatOpenAI", dict(model="gpt-4o-mini")),
+    classifier=ClassifierConfig(DefaultLLMClassifier,
+                             dict(max_parts=4,
+                             allowed_types=["time_service", "general", "memory_extraction"])),
     handlers=HandlersConfig(
-        registry={"time_service": TimeHandler},
+        registry=dict(time_service=TimeHandler),
         default_route="general",
     ),
     middleware=[
-        MiddlewareConfig("strukt.examples.middleware:ComprehensiveMiddleware"),  # custom middleware
-        MiddlewareConfig("strukt.examples.middleware:LoggingMiddleware", params={"verbose": True}),  # packaged middleware
+        MiddlewareConfig("your.own.middleware:ComprehensiveMiddleware"),  # custom middleware
+        MiddlewareConfig("strukt.examples.middleware:LoggingMiddleware", dict(verbose=True)),  # packaged middleware
     ],
 ))
 ```
@@ -109,31 +109,6 @@ middleware=[MiddlewareConfig("strukt.examples.middleware:LoggingMiddleware", par
 # Custom log file
 middleware=[MiddlewareConfig("strukt.examples.middleware:LoggingMiddleware", params={"log_file": "app.log"})]
 ```
-
-### Approval Middleware
-
-```python
-from strukt.examples.middleware import ApprovalMiddleware
-
-# Content filtering
-middleware=[
-    MiddlewareConfig(
-      "strukt.examples.middleware:ApprovalMiddleware",
-      params={"rule": lambda state, qtype, parts: "delete" not in state.text.lower()}
-    )
-]
-
-# Custom approval logic
-def custom_approval_rule(state, qtype, parts):
-    # Check if user has permission for this query type
-    user_role = state.context.get("user_role", "user")
-    if qtype == "admin_service" and user_role != "admin":
-        return False
-    return True
-
-middleware=[
-    MiddlewareConfig("strukt.examples.middleware:ApprovalMiddleware", params={"rule": custom_approval_rule})
-]
 
 ### Memory Extraction Middleware
 
@@ -322,10 +297,10 @@ Middleware is executed in the order specified in the configuration:
 
 ```python
 middleware=[
-  MiddlewareConfig("strukt.examples.middleware:AuthMiddleware", params={"valid_tokens": {"token1"}}),
-  MiddlewareConfig("strukt.examples.middleware:RateLimitMiddleware", params={"max_requests": 10}),
+  MiddlewareConfig("your.own.middleware:AuthMiddleware", params={"valid_tokens": {"token1"}}),
+  MiddlewareConfig("your.own.middleware:RateLimitMiddleware", params={"max_requests": 10}),
   MiddlewareConfig("strukt.examples.middleware:LoggingMiddleware", params={"verbose": True}),
-  MiddlewareConfig("strukt.examples.middleware:MetricsMiddleware"),
+  MiddlewareConfig("your.own.middleware:MetricsMiddleware"),
 ]
 ```
 

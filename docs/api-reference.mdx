@@ -15,7 +15,7 @@ class StruktConfig:
     classifier: ClassifierConfig
     handlers: HandlersConfig
     memory: Optional[MemoryConfig] = None
-    middleware: Optional[list[Callable]] = None
+    middleware: Optional[list[MiddlewareConfig]] = None
     extras: Optional[ExtrasConfig] = None
 ```
 
@@ -101,7 +101,7 @@ class MemoryEngine(Protocol):
         """Clear conversation history"""
         ...
 
-    # New: scoped semantic retrieval
+    # Scoped semantic retrieval
     def get_scoped(self, query: str, user_id: Optional[str] = None, unit_id: Optional[str] = None, top_k: int = 5) -> list[str]:
         """Retrieve relevant memory strings scoped by user/unit."""
         ...
@@ -307,35 +307,17 @@ class TimeHandler:
 
 ## Memory Engines
 
-### VectorMemoryEngine
-
-```python
-class VectorMemoryEngine:
-    def __init__(self, vector_store, embedding_model):
-        """
-        Initialize vector-based memory.
-        
-        Args:
-            vector_store: Vector store instance
-            embedding_model: Embedding model instance
-        """
-    
-    def get(self, key: str) -> list[dict]:
-        """Get relevant conversation history"""
-    
-    def add(self, key: str, message: dict) -> None:
-        """Add message to vector store"""
-    
-    def clear(self, key: str) -> None:
-        """Clear conversation history"""
-```
-
 ### UpstashVectorMemoryEngine
 
 ```python
-class UpstashVectorMemoryEngine(VectorMemoryEngine):
+class UpstashVectorMemoryEngine:
     def __init__(self, index_url: str, index_token: str, namespace: Optional[str] = None):
         """Adapter for Upstash Vector with node/edge storage and metadata scoping."""
+
+    def get(self, key: str) -> list[dict]: ...
+    def add(self, key: str, message: dict) -> None: ...
+    def clear(self, key: str) -> None: ...
+    def get_scoped(self, query: str, user_id: Optional[str] = None, unit_id: Optional[str] = None, top_k: int = 5) -> list[str]: ...
 ```
 
 ## Built-in Middleware
@@ -361,18 +343,6 @@ class MemoryExtractionMiddleware:
     """Extracts durable facts/preferences from invocations and stores them, preventing duplicates."""
 ```
 
-### ApprovalMiddleware
-
-```python
-class ApprovalMiddleware:
-    def __init__(self, rule: Callable):
-        """
-        Initialize approval middleware.
-        
-        Args:
-            rule: Approval rule function
-        """
-```
 
 ## Error Types
 

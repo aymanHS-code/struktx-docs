@@ -138,15 +138,17 @@ from strukt.examples.time_handler import TimeHandler
 from strukt.middleware import MiddlewareConfig
 
 app = create(StruktConfig(
-  llm=dict(factory="langchain_openai:ChatOpenAI", params={"model": "gpt-4o-mini"}),
-  classifier=dict(factory=DefaultLLMClassifier, params={"max_parts": 4, "allowed_types": ["time_service", "general", "memory_extraction"]}),
+  llm=LLMClientConfig("langchain_openai:ChatOpenAI", dict(model="gpt-4o-mini")),
+  classifier=ClassifierConfig(DefaultLLMClassifier,
+                             dict(max_parts=4,
+                             allowed_types=["time_service", "general", "memory_extraction"])),
   memory=MemoryConfig(
     factory="strukt.memory:UpstashVectorMemoryEngine",
-    params={"index_url": "https://...", "index_token": "...", "namespace": "app1"},
+    params=dict(index_url="https://...", index_token="...", namespace="app1"),
     use_store=True,
     augment_llm=True,
   ),
-  handlers=HandlersConfig({"time_service": TimeHandler}, default_route="general"),
+  handlers=HandlersConfig(dict(time_service=TimeHandler), default_route="general"),
   middleware=[MiddlewareConfig("strukt.examples.middleware:MemoryExtractionMiddleware")],
 ))
 

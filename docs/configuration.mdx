@@ -185,8 +185,8 @@ MiddlewareConfig(
 
 ```python
 middleware=[
-    MiddlewareConfig("strukt.examples.middleware:AuthMiddleware", params={"valid_tokens": {"token1", "token2"}}),
-    MiddlewareConfig("strukt.examples.middleware:RateLimitMiddleware", params={"max_requests": 10, "window_seconds": 60}),
+    MiddlewareConfig("your.own.middleware:AuthMiddleware", params={"valid_tokens": {"token1", "token2"}}),
+    MiddlewareConfig("your.own.middleware:RateLimitMiddleware", params={"max_requests": 10, "window_seconds": 60}),
     MiddlewareConfig("strukt.examples.middleware:LoggingMiddleware", params={"log_file": "app.log"}),
 ]
 ```
