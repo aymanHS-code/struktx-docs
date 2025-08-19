@@ -14,25 +14,42 @@ from strukt.examples.time_handler import TimeHandler
 
 import os
 os.environ["OPENAI_API_KEY"] = "your-openai-api-key"
+```
 
-app = create(StruktConfig(
+```python
+# LLM
+llm = LLMClientConfig(
+  "langchain_openai:ChatOpenAI",
+  dict(model="gpt-4o-mini"),
+)
+```
 
-  llm=LLMClientConfig(
-      "langchain_openai:ChatOpenAI",
-      dict(model="gpt-4o-mini")),
-  
-  classifier=ClassifierConfig(
-      DefaultLLMClassifier,
-      dict(
+```python
+# Classifier
+classifier = ClassifierConfig(
+  DefaultLLMClassifier,
+  dict(
     prompt_template=DEFAULT_CLASSIFIER_TEMPLATE,
     allowed_types=["time_service", "general"],
     max_parts=4,
-    )),
-  
-  handlers=HandlersConfig(
-    {"time_service": TimeHandler},
-    default_route="general",
   ),
+)
+```
+
+```python
+# Handlers
+handlers = HandlersConfig(
+  {"time_service": TimeHandler},
+  default_route="general",
+)
+```
+
+```python
+# Create app
+app = create(StruktConfig(
+  llm=llm,
+  classifier=classifier,
+  handlers=handlers,
 ))
 
 app.invoke("what is the time in Beirut?")
@@ -46,18 +63,27 @@ from strukt.classifiers.llm_classifier import DefaultLLMClassifier
 from strukt.examples.time_handler import TimeHandler
 from strukt.middleware import MiddlewareConfig
 
-app = create(StruktConfig(
-  llm=dict(factory="langchain_openai:ChatOpenAI", params={"model": "gpt-4o-mini"}),
-  classifier=dict(factory=DefaultLLMClassifier, params={"max_parts": 4, "allowed_types": ["time_service", "general", "memory_extraction"]}),
-  memory=MemoryConfig(
-    factory="strukt.memory:UpstashVectorMemoryEngine",
-    params={"index_url": "https://...", "index_token": "...", "namespace": "app1"},
-    use_store=True,
-    augment_llm=True,
-  ),
-  handlers=HandlersConfig({"time_service": TimeHandler}, default_route="general"),
-  middleware=[MiddlewareConfig("strukt.examples.middleware:MemoryExtractionMiddleware")],
-))
+# LLM
+llm = LLMClientConfig("langchain_openai:ChatOpenAI", dict(model="gpt-4o-mini"))
+
+# Classifier
+classifier = ClassifierConfig(DefaultLLMClassifier, dict(max_parts=4, allowed_types=["time_service", "general", "memory_extraction"]))
+
+# Memory
+memory = MemoryConfig(
+  factory="strukt.memory:UpstashVectorMemoryEngine",
+  params={"index_url": "https://...", "index_token": "...", "namespace": "app1"},
+  use_store=True,
+  augment_llm=True,
+)
+
+# Handlers
+handlers = HandlersConfig({"time_service": TimeHandler}, default_route="general")
+
+# Middleware
+middleware = [MiddlewareConfig("strukt.examples.middleware:MemoryExtractionMiddleware")]
+
+app = create(StruktConfig(llm=llm, classifier=classifier, memory=memory, handlers=handlers, middleware=middleware))
 
 # Memory-aware result
 result = app.invoke("I live in Beirut, what's the time?", context={"user_id": "u1", "unit_id": "apt-101"})

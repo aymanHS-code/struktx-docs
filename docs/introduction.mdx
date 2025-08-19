@@ -75,25 +75,42 @@ from strukt.examples.time_handler import TimeHandler
 
 import os
 os.environ["OPENAI_API_KEY"] = "your-openai-api-key"
+```
 
-app = create(StruktConfig(
+```python
+# LLM
+llm = LLMClientConfig(
+  "langchain_openai:ChatOpenAI",
+  dict(model="gpt-4o-mini"),
+)
+```
 
-  llm=LLMClientConfig(
-      "langchain_openai:ChatOpenAI",
-      dict(model="gpt-4o-mini")),
-  
-  classifier=ClassifierConfig(
-      DefaultLLMClassifier,
-      dict(
+```python
+# Classifier
+classifier = ClassifierConfig(
+  DefaultLLMClassifier,
+  dict(
     prompt_template=DEFAULT_CLASSIFIER_TEMPLATE,
     allowed_types=["time_service", "general"],
     max_parts=4,
-    )),
-  
-  handlers=HandlersConfig(
-    {"time_service": TimeHandler},
-    default_route="general",
   ),
+)
+```
+
+```python
+# Handlers
+handlers = HandlersConfig(
+  {"time_service": TimeHandler},
+  default_route="general",
+)
+```
+
+```python
+# Create app
+app = create(StruktConfig(
+  llm=llm,
+  classifier=classifier,
+  handlers=handlers,
 ))
 
 app.invoke("what is the time in Beirut?", context={"user_id": "123"})

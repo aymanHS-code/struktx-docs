@@ -195,50 +195,60 @@ from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig, Classi
 from strukt.classifiers.llm_classifier import DefaultLLMClassifier, DEFAULT_CLASSIFIER_TEMPLATE
 from strukt.examples.time_handler import TimeHandler
 from strukt.examples.middleware import MemoryExtractionMiddleware
-from strukt.memory import UpstashVectorMemoryEngine
 
 import os
 os.environ["OPENAI_API_KEY"] = "your-openai-api-key"
-os.environ["STRUKTX_DEBUG"] = "1"
+```
 
-app = create(StruktConfig(
+```python
+# LLM
+llm = LLMClientConfig("langchain_openai:ChatOpenAI", dict(model="gpt-4o-mini"))
+```
 
-  llm=LLMClientConfig(
-      "langchain_openai:ChatOpenAI",
-      dict(model="gpt-4o-mini")),
-  
-  classifier=ClassifierConfig(
-      DefaultLLMClassifier,
-      dict(
+```python
+# Classifier
+classifier = ClassifierConfig(
+  DefaultLLMClassifier,
+  dict(
     prompt_template=DEFAULT_CLASSIFIER_TEMPLATE,
     allowed_types=["time_service", "weather", "general", "memory_extraction"],
     max_parts=4,
-    )),
-  
-  memory=MemoryConfig(
-    factory=UpstashVectorMemoryEngine,
-    params=dict(
-      index_url="...",
-      index_token="...",
-    ),
-    use_store=True,
-    augment_llm=True,
   ),
-  
-  handlers=HandlersConfig(
-    {"time_service": TimeHandler},
-    default_route="general",
-  ),
-  middleware=[
-    MiddlewareConfig(
-      MemoryExtractionMiddleware
-    )
-  ]
+)
+```
+
+```python
+# Memory (Upstash Vector)
+memory = MemoryConfig(
+  factory="strukt.memory:UpstashVectorMemoryEngine",
+  params=dict(index_url="...", index_token="..."),
+  use_store=True,
+  augment_llm=True,
+)
+```
+
+```python
+# Handlers
+handlers = HandlersConfig({"time_service": TimeHandler}, default_route="general")
+```
+
+```python
+# Middleware
+middleware = [MiddlewareConfig("strukt.examples.middleware:MemoryExtractionMiddleware")]
+```
+
+```python
+# Assemble
+app = create(StruktConfig(
+  llm=llm,
+  classifier=classifier,
+  memory=memory,
+  handlers=handlers,
+  middleware=middleware,
 ))
 
-
 # Invoke (memory will be auto-injected into LLM if augment_llm=True)
-app.invoke("I currently live in <specify a location>, what is the time there?")
+app.invoke("I currently live in Beirut, what is the time there?")
 ```
 
 <Info>
