@@ -24,7 +24,15 @@ export function Footer() {
           <div className="flex items-center text-white/60 text-xs">
             <span>A project by</span>
             <img src="/snowheap.png" alt="Snowheap" className="h-4 w-auto mx-1" />
-            <span className="font-bold -ml-1.5 mt-0.5" style={{ fontFamily: 'DrukWideBold, serif' }}>snowheap.</span>
+            <a
+              href="https://snowheap.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold -ml-1.5 mt-0.5 hover:underline"
+              style={{ fontFamily: 'DrukWideBold, serif' }}
+            >
+              snowheap.
+            </a>
           </div>
         </div>
       </div>
