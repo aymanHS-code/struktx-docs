@@ -13,10 +13,18 @@ type CodeBlockProps = {
   wrap?: boolean
 }
 
+// HTML escape to safely render code (so literals like <specify a location> are preserved)
+const escapeHtml = (text: string) =>
+  text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
 // Manual syntax highlighting function
 const highlightCode = (code: string, language: string) => {
+  const src = escapeHtml(code)
   if (language === 'bash') {
-    return code
+    return src
       .replace(/(#.*$)/gm, '<span class="text-blue-300">$1</span>') // Comments
       .replace(/\b(uv|pip|install)\b/g, '<span class="text-green-300">$1</span>') // Commands
       .replace(/\b(struktx)\b/g, '<span class="text-yellow-300">$1</span>') // Package name
@@ -40,7 +48,7 @@ const highlightCode = (code: string, language: string) => {
         .join('')
     }
 
-    let highlighted = code
+    let highlighted = src
 
     // Strings
     highlighted = highlighted.replace(/(\".*?\"|\'.*?\')/g, '<span class="text-green-300">$1</span>')
@@ -73,7 +81,7 @@ const highlightCode = (code: string, language: string) => {
     return highlighted
   }
   
-  return code
+  return src
 }
 
 export function CodeBlock({ code, language = "bash", filename, className, wrap = true }: CodeBlockProps) {

@@ -61,24 +61,36 @@ class ComprehensiveMiddleware(Middleware):
 Add middleware to your application configuration:
 
 ```python
-from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig
-from strukt.examples.simple_classifier import SimpleKeywordClassifier
+from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig, MemoryConfig
+from strukt.middleware import MiddlewareConfig
 from strukt.examples.time_handler import TimeHandler
 
 app = create(StruktConfig(
-    llm=LLMClientConfig(factory=lambda **_: MockLLM()),
-    classifier=dict(factory=lambda **_: SimpleKeywordClassifier()),
+    llm=LLMClientConfig(factory="langchain_openai:ChatOpenAI", params={"model": "gpt-4o-mini"}),
+    classifier=dict(factory="strukt.classifiers.llm_classifier:DefaultLLMClassifier",
+    params={"max_parts": 4, "allowed_types": ["time_service", "general", "memory_extraction"],
+    "prompt_template": DEFAULT_CLASSIFIER_TEMPLATE}),
     handlers=HandlersConfig(
-        registry={
-            "time_service": lambda llm, **_: TimeHandler(llm),
-        },
+        registry={"time_service": TimeHandler},
         default_route="general",
     ),
     middleware=[
-        lambda **_: ComprehensiveMiddleware(),  # custom middleware
-        lambda **_: LoggingMiddleware(verbose=True),  # packaged middleware
+        MiddlewareConfig("strukt.examples.middleware:ComprehensiveMiddleware"),  # custom middleware
+        MiddlewareConfig("strukt.examples.middleware:LoggingMiddleware", params={"verbose": True}),  # packaged middleware
     ],
 ))
+```
+
+### MiddlewareConfig (new)
+
+```python
+from strukt.middleware import MiddlewareConfig
+
+# Factory can be a callable or an import string "module:attr"; params are optional
+MiddlewareConfig(
+  factory="strukt.examples.middleware:MemoryExtractionMiddleware",
+  params={"max_items": 5}
+)
 ```
 
 ## Built-in Middleware
@@ -89,13 +101,13 @@ app = create(StruktConfig(
 from strukt.examples.middleware import LoggingMiddleware
 
 # Basic logging
-middleware=[lambda **_: LoggingMiddleware()]
+middleware=[MiddlewareConfig("strukt.examples.middleware:LoggingMiddleware")]
 
 # Verbose logging
-middleware=[lambda **_: LoggingMiddleware(verbose=True)]
+middleware=[MiddlewareConfig("strukt.examples.middleware:LoggingMiddleware", params={"verbose": True})]
 
 # Custom log file
-middleware=[lambda **_: LoggingMiddleware(log_file="app.log")]
+middleware=[MiddlewareConfig("strukt.examples.middleware:LoggingMiddleware", params={"log_file": "app.log"})]
 ```
 
 ### Approval Middleware
@@ -105,8 +117,9 @@ from strukt.examples.middleware import ApprovalMiddleware
 
 # Content filtering
 middleware=[
-    lambda **_: ApprovalMiddleware(
-        rule=lambda state, qtype, parts: "delete" not in state.text.lower()
+    MiddlewareConfig(
+      "strukt.examples.middleware:ApprovalMiddleware",
+      params={"rule": lambda state, qtype, parts: "delete" not in state.text.lower()}
     )
 ]
 
@@ -119,8 +132,27 @@ def custom_approval_rule(state, qtype, parts):
     return True
 
 middleware=[
-    lambda **_: ApprovalMiddleware(rule=custom_approval_rule)
+    MiddlewareConfig("strukt.examples.middleware:ApprovalMiddleware", params={"rule": custom_approval_rule})
 ]
+
+### Memory Extraction Middleware
+
+```python
+from strukt import StruktConfig, MemoryConfig
+from strukt.middleware import MiddlewareConfig
+
+config = StruktConfig(
+  memory=MemoryConfig(
+    factory="strukt.memory:UpstashVectorMemoryEngine",
+    params={"index_url": "...", "index_token": "...", "namespace": "app1"},
+    use_store=True,
+    augment_llm=True,
+  ),
+  middleware=[
+    MiddlewareConfig("strukt.examples.middleware:MemoryExtractionMiddleware"),
+  ]
+)
+```
 ```
 
 ## Custom Middleware Examples
@@ -290,10 +322,10 @@ Middleware is executed in the order specified in the configuration:
 
 ```python
 middleware=[
-    lambda **_: AuthMiddleware(valid_tokens={"token1"}),      # 1st
-    lambda **_: RateLimitMiddleware(max_requests=10),         # 2nd
-    lambda **_: LoggingMiddleware(verbose=True),              # 3rd
-    lambda **_: MetricsMiddleware(),                          # 4th
+  MiddlewareConfig("strukt.examples.middleware:AuthMiddleware", params={"valid_tokens": {"token1"}}),
+  MiddlewareConfig("strukt.examples.middleware:RateLimitMiddleware", params={"max_requests": 10}),
+  MiddlewareConfig("strukt.examples.middleware:LoggingMiddleware", params={"verbose": True}),
+  MiddlewareConfig("strukt.examples.middleware:MetricsMiddleware"),
 ]
 ```
 

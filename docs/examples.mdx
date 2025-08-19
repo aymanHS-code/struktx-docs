@@ -12,30 +12,60 @@ from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig, Classi
 from strukt.classifiers.llm_classifier import DefaultLLMClassifier, DEFAULT_CLASSIFIER_TEMPLATE
 from strukt.examples.time_handler import TimeHandler
 
-# Example with LangChain OpenAI integration
-from langchain_openai import ChatOpenAI
-from strukt.langchain_helpers import LangChainLLMClient
-
-# Create LangChain LLM client
-langchain_llm = ChatOpenAI(api_key="your-openai-api-key")
-llm_client = LangChainLLMClient(langchain_llm)
+import os
+os.environ["OPENAI_API_KEY"] = "your-openai-api-key"
 
 app = create(StruktConfig(
-    llm=LLMClientConfig(factory=lambda **_: llm_client),
-    classifier=ClassifierConfig(
-        factory=lambda llm, **_: DefaultLLMClassifier(
-            llm=llm,
-            prompt_template=DEFAULT_CLASSIFIER_TEMPLATE,
-            allowed_types=["time_service", "weather", "general"],
-            max_parts=4,
-        )
-    ),
-    handlers=HandlersConfig(
-        registry={"time_service": lambda llm, **_: TimeHandler(llm)},
-        default_route="general",
-    ),
+
+  llm=LLMClientConfig(
+      "langchain_openai:ChatOpenAI",
+      dict(model="gpt-4o-mini")),
+  
+  classifier=ClassifierConfig(
+      DefaultLLMClassifier,
+      dict(
+    prompt_template=DEFAULT_CLASSIFIER_TEMPLATE,
+    allowed_types=["time_service", "general"],
+    max_parts=4,
+    )),
+  
+  handlers=HandlersConfig(
+    {"time_service": TimeHandler},
+    default_route="general",
+  ),
 ))
+
+app.invoke("what is the time in Beirut?")
 ```
+
+## Upstash Vector Memory + Scoped Injection
+
+```python
+from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig, ClassifierConfig, MemoryConfig
+from strukt.classifiers.llm_classifier import DefaultLLMClassifier
+from strukt.examples.time_handler import TimeHandler
+from strukt.middleware import MiddlewareConfig
+
+app = create(StruktConfig(
+  llm=dict(factory="langchain_openai:ChatOpenAI", params={"model": "gpt-4o-mini"}),
+  classifier=dict(factory=DefaultLLMClassifier, params={"max_parts": 4, "allowed_types": ["time_service", "general", "memory_extraction"]}),
+  memory=MemoryConfig(
+    factory="strukt.memory:UpstashVectorMemoryEngine",
+    params={"index_url": "https://...", "index_token": "...", "namespace": "app1"},
+    use_store=True,
+    augment_llm=True,
+  ),
+  handlers=HandlersConfig({"time_service": TimeHandler}, default_route="general"),
+  middleware=[MiddlewareConfig("strukt.examples.middleware:MemoryExtractionMiddleware")],
+))
+
+# Memory-aware result
+result = app.invoke("I live in Beirut, what's the time?", context={"user_id": "u1", "unit_id": "apt-101"})
+```
+
+<Info>
+  Memory is automatically injected into LLM prompts using <code>user_id</code> and <code>unit_id</code> from <code>context</code>. Use <code>app.add_memory</code> or the memory extraction middleware to populate durable memories.
+</Info>
 
 ## Custom Handler Example
 
@@ -151,7 +181,6 @@ Adding conversation memory to your application:
 
 ```python
 from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig, MemoryConfig
-from strukt.memory.in_memory import InMemoryEngine
 
 class ConversationalHandler(Handler):
     def __init__(self, llm: LLMClient, memory: MemoryEngine):
@@ -195,15 +224,17 @@ class ConversationalHandler(Handler):
 
 # Configuration with memory
 app = create(StruktConfig(
-    llm=LLMClientConfig(factory=lambda **_: MockLLM()),
-    classifier=dict(factory=lambda **_: SimpleKeywordClassifier()),
-    handlers=HandlersConfig(
-        registry={
-            "conversational": lambda llm, memory, **_: ConversationalHandler(llm, memory),
-        },
-        default_route="conversational",
-    ),
-    memory=MemoryConfig(factory=lambda **_: InMemoryEngine()),
+  llm=LLMClientConfig(factory="langchain_openai:ChatOpenAI", params={"model": "gpt-4o-mini"}),
+  classifier=dict(factory="strukt.classifiers.llm_classifier:DefaultLLMClassifier",
+  params={"max_parts": 4, "allowed_types": ["time_service", "general", "memory_extraction"],
+  "prompt_template": DEFAULT_CLASSIFIER_TEMPLATE}),
+  handlers=HandlersConfig(
+    registry={
+      "conversational": ConversationalHandler,
+    },
+    default_route="conversational",
+  ),
+  memory=MemoryConfig(factory="strukt.memory.UpstashVectorMemoryEngine", augment_llm=False),
 ))
 ```
 
@@ -288,13 +319,8 @@ class AsyncWeatherHandler(Handler):
                     )
     
     def handle(self, state: InvocationState, parts: list[str]) -> HandlerResult:
-        # Run async handler in sync context
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            return loop.run_until_complete(self.handle_async(state, parts))
-        finally:
-            loop.close()
+        # Run async handler in sync context (simplified for example)
+        return asyncio.run(self.handle_async(state, parts))
 ```
 
 ## Testing Example
@@ -317,18 +343,14 @@ class TestHandler(Handler):
         )
 
 @pytest.fixture
-def mock_llm():
-    llm = Mock()
-    llm.invoke.return_value = "Mock response"
-    return llm
-
-@pytest.fixture
-def test_app(mock_llm):
+def test_app():
     return create(StruktConfig(
-        llm=LLMClientConfig(factory=lambda **_: mock_llm),
-        classifier=dict(factory=lambda **_: SimpleKeywordClassifier()),
+        llm=LLMClientConfig(factory="langchain_openai:ChatOpenAI", params={"model": "gpt-4o-mini"}),
+        classifier=dict(factory="strukt.classifiers.llm_classifier:DefaultLLMClassifier",
+        params={"max_parts": 4, "allowed_types": ["time_service", "general", "memory_extraction"],
+        "prompt_template": DEFAULT_CLASSIFIER_TEMPLATE}),
         handlers=HandlersConfig(
-            registry={"test": lambda llm, **_: TestHandler(llm)},
+            registry={"test": TestHandler},
             default_route="test",
         )
     ))

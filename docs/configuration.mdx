@@ -4,7 +4,7 @@ description: "Learn how to configure StruktX applications with factories and han
 ---
 
 <Info>
-  StruktX uses a factory-based configuration system that allows you to easily swap components and customize behavior.
+  StruktX uses a flexible factory-based configuration system. You can pass factories as callables, classes, instances, or import strings like <code>"module:attr"</code>. Plain dicts for component configs are also accepted and coerced into dataclasses.
 </Info>
 
 ## StruktConfig
@@ -14,13 +14,13 @@ The main configuration object accepts factories for all components:
 ```python
 StruktConfig(
     llm=LLMClientConfig(factory="my_pkg.llm:MyLLM"),
-    classifier=ClassifierConfig(factory=lambda **_: MyClassifier()),
+    classifier=ClassifierConfig(factory="my_pkg.classifiers:MyClassifier"),
     handlers=HandlersConfig(
-        registry={"my_service": lambda llm, **_: MyHandler(llm)},
+        registry={"my_service": MyHandler},
         default_route="general",
     ),
-    memory=MemoryConfig(factory=lambda **_: MyMemory()),
-    middleware=[lambda **_: MyMiddleware()],
+    memory=MemoryConfig(factory="my_pkg.memory:MyMemory"),
+    middleware=[MiddlewareConfig("my_pkg.middleware:MyMiddleware")],
 )
 ```
 
@@ -31,10 +31,10 @@ Factories can be specified in two ways:
 <CodeGroup>
 
 ```python lambda
-# Using lambda functions
-factory=lambda **_: MyComponent()
+# Using a class name
+factory="my_pkg.module:MyComponent"
 
-# Using regular functions
+# Using a regular factory function
 def create_component(**kwargs):
     return MyComponent(**kwargs)
 
@@ -48,12 +48,15 @@ factory="my_pkg.module:MyFactory"
 
 # Import with specific function
 factory="my_pkg.llm:create_llm_client"
+
+# Importing a class
+factory="my_pkg.llm:MyLLMClass"
 ```
 
 </CodeGroup>
 
 <Note>
-  Each factory receives `llm=...` and any additional parameters from config. This allows components to access the LLM client when needed.
+  Builder progressively injects <code>llm</code>, <code>memory</code>, and <code>store</code> into factories if their signatures accept them. Additional <code>params</code> are forwarded.
 </Note>
 
 ## Handler Configuration
@@ -63,9 +66,9 @@ factory="my_pkg.llm:create_llm_client"
 ```python
 HandlersConfig(
     registry={
-        "time_service": lambda llm, **_: TimeHandler(llm),
-        "weather_service": lambda llm, **_: WeatherHandler(llm),
-        "general": lambda llm, **_: GeneralHandler(llm),
+        "time_service": TimeHandler,
+        "weather_service": WeatherHandler,
+        "general": GeneralHandler,
     },
     default_route="general",
 )
@@ -78,7 +81,7 @@ Use `HandlersConfig.handler_params` for per-handler constructor arguments:
 ```python
 HandlersConfig(
     registry={
-        "my_service": lambda llm, **_: MyHandler(llm),
+        "my_service": MyHandler,
     },
     handler_params={
         "my_service": {
@@ -96,7 +99,8 @@ HandlersConfig(
 
 ```python
 LLMClientConfig(
-    factory=lambda **_: MockLLM()
+    factory="langchain_openai:ChatOpenAI",
+    params={"model": "gpt-4o-mini"}
 )
 ```
 
@@ -104,25 +108,14 @@ LLMClientConfig(
 
 ```python
 from langchain_openai import ChatOpenAI
-from strukt.langchain_helpers import LangChainLLMClient
-
-# Create LangChain LLM client
-langchain_llm = ChatOpenAI(api_key="your-openai-api-key")
-llm_client = LangChainLLMClient(langchain_llm)
-
+# You can pass LangChain models directly; StruktX adapts them automatically
 LLMClientConfig(
-    factory=lambda **_: llm_client
+    factory="langchain_openai:ChatOpenAI",
+    params={"model": "gpt-4o-mini"}
 )
 ```
 
 ## Classifier Configuration
-
-### Simple Keyword Classifier
-
-```python
-ClassifierConfig(
-    factory=lambda **_: SimpleKeywordClassifier()
-)
 ```
 
 ### LLM-Powered Classifier
@@ -131,37 +124,37 @@ ClassifierConfig(
 from strukt.classifiers.llm_classifier import DefaultLLMClassifier, DEFAULT_CLASSIFIER_TEMPLATE
 
 ClassifierConfig(
-    factory=lambda llm, **_: DefaultLLMClassifier(
-        llm=llm,
-        prompt_template=DEFAULT_CLASSIFIER_TEMPLATE,
-        allowed_types=["time_service", "weather", "general"],
-        max_parts=4,
-    )
+    factory="strukt.classifiers.llm_classifier:DefaultLLMClassifier",
+    params={
+        "prompt_template": DEFAULT_CLASSIFIER_TEMPLATE,
+        "allowed_types": ["time_service", "weather", "general"],
+        "max_parts": 4,
+    }
 )
 ```
 
 ## Memory Configuration
 
-### In-Memory Storage
-
-```python
-MemoryConfig(
-    factory=lambda **_: InMemoryEngine()
-)
-```
-
 ### Vector Store Memory
 
 ```python
-from strukt.memory.vector_memory import VectorMemoryEngine
+from strukt.memory import UpstashVectorMemoryEngine
 
 MemoryConfig(
-    factory=lambda **_: VectorMemoryEngine(
-        vector_store=your_vector_store,
-        embedding_model=your_embedding_model
-    )
+  factory="strukt.memory:UpstashVectorMemoryEngine",
+  params={
+    "index_url": "<UPSTASH_VECTOR_INDEX_URL>",
+    "index_token": "<UPSTASH_VECTOR_TOKEN>",
+    "namespace": "app1"
+  },
+  use_store=True,       # create a bound KnowledgeStore
+  augment_llm=True,     # automatically inject scoped memory into prompts
 )
 ```
+
+<Info>
+  With <code>augment_llm=True</code>, all LLM calls receive relevant memory snippets automatically. Provide <code>context</code> with <code>user_id</code> and optional <code>unit_id</code> for scoping.
+</Info>
 
 ## Middleware Configuration
 
@@ -169,67 +162,83 @@ MemoryConfig(
 
 ```python
 middleware=[
-    lambda **_: LoggingMiddleware(verbose=True)
+    MiddlewareConfig("strukt.examples.middleware:LoggingMiddleware", params={"verbose": True})
 ]
+```
+
+### MiddlewareConfig
+
+```python
+from strukt.middleware import MiddlewareConfig
+
+# Factory can be callable, class, instance, or import string "module:attr"; params are optional
+MiddlewareConfig(
+  factory="strukt.examples.middleware:MemoryExtractionMiddleware",
+  params={"max_items": 5}
+)
 ```
 
 ### Multiple Middleware
 
 ```python
 middleware=[
-    lambda **_: AuthMiddleware(valid_tokens={"token1", "token2"}),
-    lambda **_: RateLimitMiddleware(max_requests=10, window_seconds=60),
-    lambda **_: LoggingMiddleware(log_file="app.log"),
+    MiddlewareConfig("strukt.examples.middleware:AuthMiddleware", params={"valid_tokens": {"token1", "token2"}}),
+    MiddlewareConfig("strukt.examples.middleware:RateLimitMiddleware", params={"max_requests": 10, "window_seconds": 60}),
+    MiddlewareConfig("strukt.examples.middleware:LoggingMiddleware", params={"log_file": "app.log"}),
 ]
 ```
 
 ## Complete Example
 
 ```python
-from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig, ClassifierConfig, MemoryConfig
-from strukt.examples.simple_classifier import SimpleKeywordClassifier
+from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig, ClassifierConfig, MemoryConfig, MiddlewareConfig
+from strukt.classifiers.llm_classifier import DefaultLLMClassifier, DEFAULT_CLASSIFIER_TEMPLATE
 from strukt.examples.time_handler import TimeHandler
-from strukt.middleware import LoggingMiddleware
+from strukt.examples.middleware import MemoryExtractionMiddleware
+from strukt.memory import UpstashVectorMemoryEngine
 
-# Create a comprehensive configuration
-config = StruktConfig(
-    # LLM Configuration
-    llm=LLMClientConfig(
-        factory=lambda **_: MockLLM()
-    ),
-    
-    # Classifier Configuration
-    classifier=ClassifierConfig(
-        factory=lambda **_: SimpleKeywordClassifier()
-    ),
-    
-    # Handler Configuration
-    handlers=HandlersConfig(
-        registry={
-            "time_service": lambda llm, **_: TimeHandler(llm),
-            "general": lambda llm, **_: GeneralHandler(llm),
-        },
-        default_route="general",
-        handler_params={
-            "time_service": {"timezone": "UTC"},
-            "general": {"system": "You are a helpful assistant"}
-        }
-    ),
-    
-    # Memory Configuration (optional)
-    memory=MemoryConfig(
-        factory=lambda **_: InMemoryEngine()
-    ),
-    
-    # Middleware Configuration (optional)
-    middleware=[
-        lambda **_: LoggingMiddleware(verbose=True),
-        lambda **_: AuthMiddleware(valid_tokens={"user_token"}),
-    ]
-)
+import os
+os.environ["OPENAI_API_KEY"] = "your-openai-api-key"
+os.environ["STRUKTX_DEBUG"] = "1"
 
-# Create the application
-app = create(config)
+app = create(StruktConfig(
+
+  llm=LLMClientConfig(
+      "langchain_openai:ChatOpenAI",
+      dict(model="gpt-4o-mini")),
+  
+  classifier=ClassifierConfig(
+      DefaultLLMClassifier,
+      dict(
+    prompt_template=DEFAULT_CLASSIFIER_TEMPLATE,
+    allowed_types=["time_service", "weather", "general", "memory_extraction"],
+    max_parts=4,
+    )),
+  
+  memory=MemoryConfig(
+    factory=UpstashVectorMemoryEngine,
+    params=dict(
+      index_url="...",
+      index_token="...",
+    ),
+    use_store=True,
+    augment_llm=True,
+  ),
+  
+  handlers=HandlersConfig(
+    {"time_service": TimeHandler},
+    default_route="general",
+  ),
+  middleware=[
+    MiddlewareConfig(
+      MemoryExtractionMiddleware
+    )
+  ]
+))
+
+
+# Invoke (memory will be auto-injected into LLM if augment_llm=True)
+app.invoke("I currently live in <specify a location>, what is the time there?")
 ```
 
 <Info>
@@ -249,7 +258,8 @@ api_key = os.getenv("OPENAI_API_KEY")
 langchain_llm = ChatOpenAI(api_key=api_key)
 
 LLMClientConfig(
-    factory=lambda **_: LangChainLLMClient(langchain_llm)
+    factory="langchain_openai:ChatOpenAI",
+    params={"api_key": api_key, "model": "gpt-4o-mini"}
 )
 ```
 

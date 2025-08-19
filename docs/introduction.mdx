@@ -15,16 +15,16 @@ A configurable, typed AI framework with swappable LLM, classifier, handlers, and
     Fully typed system alongside Pydantic-first models
   </Card>
   <Card title="Configurable" icon="wrench-simple" href="/configuration">
-    Factory-based configuration system
+    Factory-based configuration system (callable, class, instance, or import string)
   </Card>
   <Card title="Extensible" icon="plug" href="/examples">
     Easy to add custom components
   </Card>
-  <Card title="Memory Support" icon="head-side-brain" href="/middleware">
-    Optional conversation memory
+  <Card title="Scoped Memory" icon="head-side-brain" href="/configuration#memory-configuration">
+    Upstash Vector, KnowledgeStore, and context-aware injection
   </Card>
   <Card title="Middleware" icon="arrow-progress" href="/middleware">
-    Pre/post processing hooks
+    Pre/post processing hooks (including Memory Extraction)
   </Card>
 </CardGroup>
 
@@ -69,33 +69,67 @@ A configurable, typed AI framework with swappable LLM, classifier, handlers, and
 ## Quick Start
 
 ```python
-from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig
-from strukt.examples.simple_classifier import SimpleKeywordClassifier
+from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig, ClassifierConfig
+from strukt.classifiers.llm_classifier import DefaultLLMClassifier, DEFAULT_CLASSIFIER_TEMPLATE
 from strukt.examples.time_handler import TimeHandler
 
-# Create a simple mock LLM for demonstration
-class MockLLM:
-    def invoke(self, text: str) -> str:
-        return f"Mock response to: {text}"
-    
-    def structured(self, prompt: str, model):
-        # For structured outputs, you'd implement this
-        return model(response="Mock structured response")
+import os
+os.environ["OPENAI_API_KEY"] = "your-openai-api-key"
 
 app = create(StruktConfig(
-    llm=LLMClientConfig(factory=lambda **_: MockLLM()),
-    classifier=dict(factory=lambda **_: SimpleKeywordClassifier()),
-    handlers=HandlersConfig(
-        registry={
-            "time_service": lambda llm, **_: TimeHandler(llm),
-        },
-        default_route="general",
-    )
+
+  llm=LLMClientConfig(
+      "langchain_openai:ChatOpenAI",
+      dict(model="gpt-4o-mini")),
+  
+  classifier=ClassifierConfig(
+      DefaultLLMClassifier,
+      dict(
+    prompt_template=DEFAULT_CLASSIFIER_TEMPLATE,
+    allowed_types=["time_service", "general"],
+    max_parts=4,
+    )),
+  
+  handlers=HandlersConfig(
+    {"time_service": TimeHandler},
+    default_route="general",
+  ),
 ))
 
-result = app.invoke("what is the time in Beirut", context={"user_id": "u1"})
-print(result.response)
+app.invoke("what is the time in Beirut?", context={"user_id": "123"})
 ```
+
+<Info>
+  If <code>OPENAI_API_KEY</code> is set and no <code>llm</code> is provided, a sensible default LLM client is selected automatically. Otherwise, a minimal <code>SimpleLLMClient</code> is used.
+</Info>
+
+## Quick Start with Memory + Middleware
+
+```python
+from strukt import create, StruktConfig, HandlersConfig, LLMClientConfig, ClassifierConfig, MemoryConfig
+from strukt.classifiers.llm_classifier import DefaultLLMClassifier
+from strukt.examples.time_handler import TimeHandler
+from strukt.middleware import MiddlewareConfig
+
+app = create(StruktConfig(
+  llm=dict(factory="langchain_openai:ChatOpenAI", params={"model": "gpt-4o-mini"}),
+  classifier=dict(factory=DefaultLLMClassifier, params={"max_parts": 4, "allowed_types": ["time_service", "general", "memory_extraction"]}),
+  memory=MemoryConfig(
+    factory="strukt.memory:UpstashVectorMemoryEngine",
+    params={"index_url": "https://...", "index_token": "...", "namespace": "app1"},
+    use_store=True,
+    augment_llm=True,
+  ),
+  handlers=HandlersConfig({"time_service": TimeHandler}, default_route="general"),
+  middleware=[MiddlewareConfig("strukt.examples.middleware:MemoryExtractionMiddleware")],
+))
+
+result = app.invoke("I live in Beirut, what's the time?", context={"user_id": "u1", "unit_id": "apt-101"})
+```
+
+<Info>
+  Memory can be scoped by <code>user_id</code> and <code>unit_id</code>. With <code>augment_llm=True</code>, StruktX automatically injects relevant, scoped memory into prompts.
+</Info>
 
 ## What is StruktX?
 
