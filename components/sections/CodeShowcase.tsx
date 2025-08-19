@@ -216,7 +216,6 @@ export function CodeShowcase({ className }: { className?: string }) {
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-dark-700 dark:text-white/80 mb-2">Response:</h4>
-                    <AnimatedTimeResponse index={cycleIndex} autoplay={false} prettyJson />
                     <div className="mt-3">
                       <TimeServicePreview index={cycleIndex} />
                     </div>
