@@ -30,15 +30,6 @@ export function Navigation() {
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
             <ThemeToggle />
-            <a href="https://github.com/struktx/struktx" target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" size="sm">
-                <Github className="h-4 w-4 mr-2" />
-                GitHub
-              </Button>
-            </a>
-            <a href="https://struktx.mintlify.app" target="_blank" rel="noopener noreferrer">
-              <Button size="sm">Get Started</Button>
-            </a>
           </div>
 
           {/* Mobile menu button */}
@@ -67,18 +58,9 @@ export function Navigation() {
             <div className="px-4 py-4 space-y-4">
               {}
               <div className="pt-4 border-t border-dark-200 dark:border-dark-700">
-                              <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
                 <ThemeToggle />
-                <a href="https://github.com/struktx/struktx" target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" size="sm">
-                    <Github className="h-4 w-4 mr-2" />
-                    GitHub
-                  </Button>
-                </a>
                 </div>
-                <a href="https://struktx.mintlify.app" target="_blank" rel="noopener noreferrer" className="block mt-4">
-                  <Button className="w-full">Get Started</Button>
-                </a>
               </div>
             </div>
           </motion.div>

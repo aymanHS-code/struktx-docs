@@ -152,7 +152,7 @@ export default function Home() {
               brightness={50}
               opacity={0.93}
             >
-              <div className="flex items-center justify-between px-8 w-full">
+              <div className="flex items-center justify-between pl-8 pr-4 w-full">
                 <Suspense fallback={
                   <div className="text-xl font-bold tracking-tight text-white">StruktX</div>
                 }>
@@ -173,17 +173,6 @@ export default function Home() {
                 </Suspense>
                 <div className="flex items-center space-x-4">
                   <ThemeToggle />
-                  <a href="https://github.com/struktx/struktx" target="_blank" rel="noopener noreferrer">
-                    <Button variant="outline" size="sm" className="bg-white/10 hover:bg-white/20 border-white/20 text-white">
-                      <Github className="h-4 w-4 mr-2" />
-                      GitHub
-                    </Button>
-                  </a>
-                  <a href="https://struktx.mintlify.app" target="_blank" rel="noopener noreferrer">
-                    <Button size="sm" className="bg-white/10 hover:bg-white/20 text-white">
-                      Get Started
-                    </Button>
-                  </a>
                 </div>
               </div>
             </GlassSurface>
