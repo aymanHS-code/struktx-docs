@@ -152,7 +152,7 @@ export default function Home() {
               brightness={50}
               opacity={0.93}
             >
-              <div className="flex items-center justify-between pl-8 pr-4 w-full">
+              <div className="flex items-center justify-between pl-8 pr-2 w-full">
                 <Suspense fallback={
                   <div className="text-xl font-bold tracking-tight text-white">StruktX</div>
                 }>
