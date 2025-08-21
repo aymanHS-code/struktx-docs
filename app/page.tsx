@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { ArrowRight, Github, BookOpen } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { useEffect, useRef, useState, Suspense } from 'react'
+import { useEffect, useRef, useState, Suspense, useContext } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Sparkles } from '@/components/animated/Sparkles'
@@ -13,6 +13,7 @@ import SplitText from '@/components/SplitText'
 import MagicBento from '@/components/MagicBento'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import LoadingSkeleton from '@/components/LoadingSkeleton'
+import { TransitionContext } from '@/components/ThemeLoadingProvider'
 // Background handled globally in RootLayout; theme not needed here
 import { Footer } from '@/components/footer'
 
@@ -23,6 +24,7 @@ export default function Home() {
   const rootRef = useRef<HTMLDivElement | null>(null)
   const [isPageLoading, setIsPageLoading] = useState(true)
   const [isFullyLoaded, setIsFullyLoaded] = useState(false)
+  const { fadeToDocs } = useContext(TransitionContext)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -207,7 +209,7 @@ export default function Home() {
               <div className="w-45 h-12 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 dark:border-white/10 animate-pulse shadow-lg"></div>
             }>
               <GlassSurface width={180} height={50} borderRadius={25} backgroundOpacity={0.15} saturation={1.1} blur={8} brightness={70} opacity={0.9}>
-                <a href="/docs" className="h-full w-full flex items-center justify-center text-white font-medium">
+                <a href="/docs" className="h-full w-full flex items-center justify-center text-white font-medium" onMouseDown={() => { try { document.body.style.backgroundColor = '#0b1220' } catch {} }} onClick={(e) => { try { fadeToDocs() } catch {} }}>
                   Get Started
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </a>
