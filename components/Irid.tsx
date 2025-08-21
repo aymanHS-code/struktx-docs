@@ -68,7 +68,8 @@ export default function Iridescence({
     const ctn = ctnDom.current;
     const renderer = new Renderer();
     const gl = renderer.gl;
-    gl.clearColor(1, 1, 1, 1);
+    // Use transparent clear to avoid any white flash before first render
+    gl.clearColor(0, 0, 0, 0);
 
     let program: Program;
 

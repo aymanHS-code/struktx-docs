@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 interface LoadingSkeletonProps {
@@ -10,21 +10,27 @@ interface LoadingSkeletonProps {
 const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({ onComplete }) => {
   const [isFading, setIsFading] = useState(false);
 
-  const handleComplete = () => {
-    setIsFading(true);
-    setTimeout(() => {
-      onComplete?.();
-    }, 500); // Wait for fade animation to complete
-  };
+  // Ensure loading completes after minimum time
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsFading(true);
+      setTimeout(() => {
+        onComplete?.();
+      }, 500); // Fade duration (reduced)
+    }, 900); // Shorter minimum loading time
+    
+    return () => clearTimeout(timer);
+  }, [onComplete]);
 
   return (
     <motion.div 
-      className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-dark-800 dark:via-dark-900 dark:to-dark-800 flex flex-col justify-center items-center relative"
+      className="min-h-screen flex flex-col justify-center items-center relative"
+      style={{ backgroundColor: '#0b1220' }}
       animate={{ opacity: isFading ? 0 : 1 }}
-      transition={{ duration: 0.5, ease: "easeInOut" }}
+      transition={{ duration: 0.8, ease: "easeInOut" }}
     >
-      {/* Animated background gradient */}
-      <div className="fixed inset-0 bg-gradient-to-br from-blue-50/50 via-white/30 to-purple-50/50 dark:from-dark-800/50 dark:via-dark-900/30 dark:to-dark-800/50 animate-pulse"></div>
+      {/* Dark background gradient */}
+      <div className="fixed inset-0 bg-gradient-to-br from-dark-800/50 via-dark-900/30 to-dark-800/50 animate-pulse" style={{ backgroundColor: '#0b1220' }}></div>
       
       {/* Floating particles */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -48,7 +54,7 @@ const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({ onComplete }) => {
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
           className="mb-8"
         >
           <div className="w-32 h-32 bg-white/10 dark:bg-white/5 backdrop-blur-sm rounded-2xl skeleton-pulse border border-white/20 dark:border-white/10 shadow-lg mx-auto">
@@ -84,22 +90,21 @@ const LoadingSkeleton: React.FC<LoadingSkeletonProps> = ({ onComplete }) => {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.4 }}
-          className="text-dark-600 dark:text-white/60 text-sm font-medium mb-4"
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="text-white/60 text-sm font-medium mb-4"
         ></motion.p>
         
         {/* Simple loading animation */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.4 }}
-          onAnimationComplete={handleComplete}
+          transition={{ duration: 0.6, delay: 0.8 }}
           className="w-4 h-4 border-2 border-white/30 dark:border-white/20 border-t-white/60 dark:border-t-white/40 rounded-full animate-spin mx-auto"
         />
       </div>
 
              {/* Subtle gradient overlay */}
-       <div className="fixed inset-0 bg-gradient-to-t from-transparent via-transparent to-white/5 dark:to-black/5 pointer-events-none"></div>
+       <div className="fixed inset-0 bg-gradient-to-t from-transparent via-transparent to-black/5 pointer-events-none"></div>
      </motion.div>
    );
  };

@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import ThemeLoadingProvider from '@/components/ThemeLoadingProvider'
+import BackgroundManager from '@/components/BackgroundManager'
+import { ThemeProvider } from '@/lib/theme'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -111,18 +113,51 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
+            <html lang="en" className="scroll-smooth dark" style={{ backgroundColor: '#0b1220' }}>
       <head>
+        {/* PRELOAD: Execute before anything else */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){
+            try {
+              // Force dark background immediately
+              document.documentElement.style.backgroundColor = '#0b1220';
+              document.body && (document.body.style.backgroundColor = '#0b1220');
+              
+              // Also set on window for immediate effect
+              if (typeof window !== 'undefined') {
+                window.addEventListener('beforeunload', function() {
+                  document.documentElement.style.backgroundColor = '#0b1220';
+                  document.body && (document.body.style.backgroundColor = '#0b1220');
+                });
+              }
+            } catch(e) {}
+          })();
+        ` }} />
+        
+        {/* CRITICAL: Force dark background with maximum priority */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          html { background-color: #0b1220 !important; background: #0b1220 !important; }
+          body { background-color: #0b1220 !important; background: #0b1220 !important; }
+        ` }} />
+        
         {/* Additional meta tags for better SEO */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
         <meta name="format-detection" content="telephone=no" />
-        <meta name="theme-color" content="#0066cc" />
-        <meta name="msapplication-TileColor" content="#0066cc" />
+        <meta name="theme-color" content="#0b1220" />
+        <meta name="msapplication-TileColor" content="#0b1220" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="StruktX" />
         <meta name="application-name" content="StruktX" />
-        
+        <meta name="color-scheme" content="dark light" />
+
+        {/* Pre-init theme to avoid FOUC/white flash */}
+        <script dangerouslySetInnerHTML={{ __html: `!function(){try{var t=localStorage.getItem('theme');var d=document.documentElement;if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){d.classList.add('dark');d.classList.remove('light');}else{d.classList.add('light');d.classList.remove('dark');}}catch(e){}}();` }} />
+
+        {/* Early dark paint to prevent white flash and mark load state */}
+        <style dangerouslySetInnerHTML={{ __html: `html{background:#0b1220}body{background:#0b1220}` }} />
+        <script dangerouslySetInnerHTML={{ __html: `!function(){try{var d=document;var mark=function(){var b=d.body;b&&b.classList.add('loaded')};d.addEventListener('DOMContentLoaded',mark);window.addEventListener('load',mark);}catch(e){}}();` }} />
+
         {/* Structured Data for Rich Snippets */}
         <script
           type="application/ld+json"
@@ -174,10 +209,13 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.className} antialiased`}>
-        <ThemeLoadingProvider>
-          {children}
-        </ThemeLoadingProvider>
+      <body className={`${inter.className} antialiased`} style={{ backgroundColor: '#0b1220' }}>
+        <ThemeProvider>
+          <ThemeLoadingProvider>
+            <BackgroundManager />
+            {children}
+          </ThemeLoadingProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

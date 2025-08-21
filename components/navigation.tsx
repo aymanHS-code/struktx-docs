@@ -2,13 +2,16 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { TransitionContext } from './ThemeLoadingProvider'
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
+  const { fadeToDocs } = React.useContext(TransitionContext)
 
 
   return (
@@ -22,7 +25,19 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-          <Link href="/docs" className="text-sm hover:underline">Docs</Link>
+            <Link
+              href="/docs"
+              onMouseDown={() => {
+                // Darken body immediately to avoid transient white
+                try { document.body.style.backgroundColor = '#0b1220' } catch {}
+              }}
+              onClick={() => {
+                fadeToDocs()
+              }}
+              prefetch
+            >
+              Docs
+            </Link>
           </div>
 
           {/* Desktop Actions */}

@@ -26,11 +26,9 @@ const BackgroundManager: React.FC<BackgroundManagerProps> = ({ children }) => {
   }, []);
 
   return (
-    <div className="fixed inset-0 -z-10">
-      {/* Base background to prevent white flash */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-dark-800 dark:via-dark-900 dark:to-dark-800"></div>
-      
-      {/* Hidden preload containers */}
+    <div className="fixed inset-0 z-0">
+      {/* Hidden preload containers (detached visually) */}
+      {!isPreloaded && (
       <div ref={preloadRef} className="absolute inset-0 pointer-events-none" style={{ opacity: 0 }}>
         {/* Preload Iridescence (Light theme) */}
         <div className="absolute inset-0">
@@ -60,12 +58,13 @@ const BackgroundManager: React.FC<BackgroundManagerProps> = ({ children }) => {
           />
         </div>
       </div>
+      )}
       
-      {/* Active backgrounds with smooth transitions */}
+      {/* Active backgrounds with smooth transitions; rely on html/body dark paint to mask any initial white */}
       {isPreloaded && (
         <>
           {/* Iridescence Background - Light Mode */}
-          <div className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+          <div className={`absolute inset-0 transition-opacity duration-500 ease-out ${
             theme === 'light' ? 'opacity-100' : 'opacity-0'
           }`}>
             <Iridescence
@@ -77,7 +76,7 @@ const BackgroundManager: React.FC<BackgroundManagerProps> = ({ children }) => {
           </div>
           
           {/* LightRays Background - Dark Mode */}
-          <div className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+          <div className={`absolute inset-0 transition-opacity duration-500 ease-out ${
             theme === 'dark' ? 'opacity-100' : 'opacity-0'
           }`}>
             <LightRays

@@ -17,10 +17,12 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 50px;
+    background-color: #0b1220; /* Prevent white flash on initial load */
   }
   
   body {
-    @apply bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-dark-800 dark:via-dark-900 dark:to-dark-800 text-dark-900 dark:text-white transition-colors duration-300;
+    background-color: #0b1220;
+    @apply text-dark-900 dark:text-white transition-colors duration-300;
   }
 }
 

@@ -774,7 +774,7 @@ for _ in range(5):
 }`} />
 
         <h5 className="concept-badge-inline text-md font-semibold">Cursor</h5>
-        <CodeBlock className="code-block" language="json" filename="cursor_mcp.json" code={`{
+        <CodeBlock className="code-block" language="json" filename=".cursor/mcp.json" code={`{
   "mcpServers": {
     "struktx": {
       "url": "https://struktx.vercel.app/api/mcp"
@@ -783,7 +783,7 @@ for _ in range(5):
 }`} />
 
         <h5 className="concept-badge-inline text-md font-semibold">Windsurf</h5>
-        <CodeBlock className="code-block" language="json" filename="windsurf_mcp.json" code={`{
+        <CodeBlock className="code-block" language="json" filename="/.codeium/windsurf/mcp_config.json" code={`{
   "mcpServers": {
     "struktx": {
       "url": "https://struktx.vercel.app/api/mcp"

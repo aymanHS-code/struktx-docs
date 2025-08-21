@@ -132,12 +132,16 @@ const LightRays: React.FC<LightRaysProps> = ({
       const renderer = new Renderer({
         dpr: Math.min(window.devicePixelRatio, 2),
         alpha: true,
+        antialias: true,
+        premultipliedAlpha: true,
       });
       rendererRef.current = renderer;
 
       const gl = renderer.gl;
       gl.canvas.style.width = "100%";
       gl.canvas.style.height = "100%";
+      // Transparent clear to avoid flashing the default white
+      gl.clearColor(0, 0, 0, 0);
 
       while (containerRef.current.firstChild) {
         containerRef.current.removeChild(containerRef.current.firstChild);

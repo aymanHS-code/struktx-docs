@@ -13,10 +13,7 @@ import SplitText from '@/components/SplitText'
 import MagicBento from '@/components/MagicBento'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 import LoadingSkeleton from '@/components/LoadingSkeleton'
-import WebGLPreloader from '@/components/WebGLPreloader'
-import Iridescence from '@/components/Irid'
-import LightRays from '@/components/LightRays'
-import { useTheme } from '@/lib/theme'
+// Background handled globally in RootLayout; theme not needed here
 import { Footer } from '@/components/footer'
 
 
@@ -24,9 +21,8 @@ import { Footer } from '@/components/footer'
 
 export default function Home() {
   const rootRef = useRef<HTMLDivElement | null>(null)
-  const { theme } = useTheme()
   const [isPageLoading, setIsPageLoading] = useState(true)
-  const [isWebGLPreloaded, setIsWebGLPreloaded] = useState(false)
+  const [isFullyLoaded, setIsFullyLoaded] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -35,7 +31,8 @@ export default function Home() {
     const ctx = gsap.context(() => {
       const q = (sel: string) => document.querySelector(sel)
 
-      // Removed initial page load animations since we have the skeleton
+      // Only run animations if page is fully loaded
+      if (!isFullyLoaded) return
 
       if (q('#showcase') && q('.feature-card')) {
         gsap.from('.feature-card', {
@@ -61,7 +58,7 @@ export default function Home() {
       if (q('.cta-card')) {
         gsap.from('.cta-card', {
           scrollTrigger: { trigger: '.cta-card', start: 'top 85%' },
-          scale: 0.98,
+          y: 20,
           opacity: 0,
           duration: 0.7,
           ease: 'power2.out',
@@ -72,71 +69,37 @@ export default function Home() {
     return () => {
       ctx.revert()
     }
-  }, [])
+  }, [isFullyLoaded])
 
   // Show loading skeleton while page is loading
   if (isPageLoading) {
     return (
       <>
-        <WebGLPreloader onPreloadComplete={() => setIsWebGLPreloaded(true)} />
-        <LoadingSkeleton onComplete={() => setIsPageLoading(false)} />
+        <LoadingSkeleton onComplete={() => {
+          setIsPageLoading(false)
+          // Add a small delay to ensure smooth transition
+          setTimeout(() => setIsFullyLoaded(true), 100)
+        }} />
       </>
     )
   }
 
   return (
-    <div 
+    <motion.div 
       ref={rootRef} 
       className="relative transition-colors duration-300"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      {/* Background Components */}
-      <div className="fixed inset-0 -z-10">
-        {/* Base background to prevent white flash */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-dark-800 dark:via-dark-900 dark:to-dark-800"></div>
-        
-        {/* Iridescence Background - Light Mode */}
-        <div className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-          theme === 'light' ? 'opacity-100' : 'opacity-0'
-        }`}>
-          <Suspense fallback={null}>
-            <Iridescence
-              color={[0.1, 0.3, 0.6]}
-              mouseReact={true}
-              amplitude={0.1}
-              speed={1.0}
-            />
-          </Suspense>
-        </div>
-        
-        {/* LightRays Background - Dark Mode */}
-        <div className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-          theme === 'dark' ? 'opacity-100' : 'opacity-0'
-        }`}>
-          <Suspense fallback={null}>
-            <LightRays
-              raysOrigin="top-center"
-              raysColor="#90E0EF"
-              raysSpeed={0.2}
-              lightSpread={1.2}
-              rayLength={2.5}
-              pulsating={true}
-              fadeDistance={1}
-              saturation={1.1}
-              followMouse={true}
-              mouseInfluence={0.15}
-              noiseAmount={0.1}
-              distortion={0.05}
-            />
-          </Suspense>
-        </div>
-      </div>
+      {/* Background is now handled globally via BackgroundManager in RootLayout */}
       
       <Suspense fallback={null}>
         <Sparkles />
       </Suspense>
       
              {/* Centered Hero Section - Full Viewport Height */}
-       <section className="h-screen flex flex-col justify-center items-center relative z-10">
+       <section className="h-screen flex flex-col justify-center items-center relative z-20">
         {/* Glass Navigation */}
         <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <Suspense fallback={
@@ -268,7 +231,7 @@ export default function Home() {
       </section>
 
       {/* Content Below Hero - Appears on Scroll */}
-      <div className="relative z-10 bg-transparent">
+      <div className="relative z-20 bg-transparent">
         {/* Magic Bento Showcase */}
         <section id="showcase" className="pt-12 pb-28 bg-transparent">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -401,6 +364,6 @@ export default function Home() {
       
       {/* Footer */}
       <Footer />
-    </div>
+    </motion.div>
   )
 } 
