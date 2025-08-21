@@ -11,6 +11,7 @@ type CodeBlockProps = {
   filename?: string
   className?: string
   wrap?: boolean
+  showExample?: boolean
 }
 
 // HTML escape to safely render code (so literals like <specify a location> are preserved)
@@ -84,7 +85,7 @@ const highlightCode = (code: string, language: string) => {
   return src
 }
 
-export function CodeBlock({ code, language = "bash", filename, className, wrap = true }: CodeBlockProps) {
+export function CodeBlock({ code, language = "bash", filename, className, wrap = true, showExample = false }: CodeBlockProps) {
   const [copied, setCopied] = React.useState(false)
   const onCopy = async () => {
     try {
@@ -101,8 +102,15 @@ export function CodeBlock({ code, language = "bash", filename, className, wrap =
   return (
     <div className={cn("relative rounded-xl overflow-hidden border border-white/20 dark:border-white/10 bg-white/5 dark:bg-dark-800/50 backdrop-blur-sm shadow-lg", className)}>
       {filename && (
-        <div className="flex items-center justify-between px-4 py-2 text-xs bg-white/10 dark:bg-dark-700/50 text-dark-800 dark:text-white/80 border-b border-white/10 dark:border-white/5">
-          <span className="font-mono">{filename}</span>
+        <div className="flex items-center justify-between px-4 py-2 text-xs bg-white/10 dark:bg-dark-700/50 text-dark-800 dark:text-white/80 border-b border-white/10 dark:border-white/5 rounded-lg">
+          <div className="flex items-center gap-2">
+            <span className="font-mono">{filename}</span>
+            {showExample && (
+              <span className="inline-block text-[9px] uppercase tracking-wide px-1.5 py-0.5 rounded bg-primary-600/15 text-primary-700 dark:text-primary-300 ring-1 ring-primary-600/30 font-medium">
+                Example
+              </span>
+            )}
+          </div>
           <Button size="sm" variant="ghost" onClick={onCopy} className="h-8 px-2 text-dark-600 dark:text-white/70 hover:text-dark-900 dark:hover:text-white hover:bg-white/10 dark:hover:bg-white/5">
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
           </Button>

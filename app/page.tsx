@@ -244,7 +244,7 @@ export default function Home() {
               <div className="w-45 h-12 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 dark:border-white/10 animate-pulse shadow-lg"></div>
             }>
               <GlassSurface width={180} height={50} borderRadius={25} backgroundOpacity={0.15} saturation={1.1} blur={8} brightness={70} opacity={0.9}>
-                <a href="https://struktx.mintlify.app" target="_blank" rel="noopener noreferrer" className="h-full w-full flex items-center justify-center text-white font-medium">
+                <a href="/docs" className="h-full w-full flex items-center justify-center text-white font-medium">
                   Get Started
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </a>
@@ -362,11 +362,7 @@ export default function Home() {
                   <h2 className="text-3xl font-bold tracking-tight text-dark-900 dark:text-white sm:text-4xl mb-3">Ready to Build?</h2>
                   <p className="text-dark-600 dark:text-dark-300 mb-8">Start with the docs or explore the codebase.</p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a
-                      href="https://struktx.mintlify.app"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a href="/docs">
                       <Button
                         asChild
                         size="lg"

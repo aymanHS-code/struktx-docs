@@ -16,6 +16,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 50px;
   }
   
   body {
@@ -24,6 +25,77 @@
 }
 
 @layer components {
+  .prose :where(p) {
+    @apply leading-7 md:leading-8 text-dark-700 dark:text-dark-300;
+  }
+  .prose :where(h1,h2,h3,h4) {
+    @apply scroll-mt-32 mt-12 md:mt-16;
+  }
+  .prose :where(code) {
+    @apply px-1.5 py-0.5 rounded-md bg-white/30 dark:bg-dark-700/60 text-dark-900 dark:text-white font-mono text-[0.9em];
+  }
+  .prose :where(pre) {
+    @apply my-8 md:my-10;
+  }
+  .prose :where(blockquote) {
+    @apply border-l-4 border-primary-600/60 pl-4 italic text-dark-700 dark:text-dark-200 bg-white/30 dark:bg-dark-800/40 rounded-r-lg py-2;
+  }
+  .prose :where(ul,ol) {
+    @apply my-4 md:my-6;
+  }
+  .prose :where(li) {
+    @apply leading-7 md:leading-8;
+  }
+  .prose .section {
+    @apply space-y-6 md:space-y-8;
+  }
+  .badge {
+    @apply inline-block text-[11px] uppercase tracking-wide px-3 py-1 rounded-md bg-primary-600/15 text-primary-700 dark:text-primary-300 ring-1 ring-primary-600/30 font-medium mb-3 block;
+  }
+  
+  .concept-badge {
+    @apply inline-block text-[10px] uppercase tracking-wide px-2 rounded-xl bg-blue-600/20 text-blue-700 dark:text-blue-300 ring-1 ring-blue-600/40 font-medium;
+  }
+  
+  .concept-badge-inline {
+    @apply inline-block text-[10px] uppercase tracking-wide px-2 rounded-xl bg-blue-600/20 text-blue-700 dark:text-blue-300 ring-1 ring-blue-600/40 font-medium;
+  }
+  
+  .concept-list {
+    @apply space-y-4;
+  }
+  
+  .concept-list-item {
+    @apply flex items-center space-x-3 p-3 rounded-lg bg-white/5 dark:bg-dark-800/20 border border-white/10 dark:border-white/5 backdrop-blur-sm;
+  }
+  
+  .note-box {
+    @apply flex items-baseline space-x-3 p-4 rounded-lg bg-blue-600/10 dark:bg-blue-600/5 border border-blue-600/20 dark:border-blue-600/10 backdrop-blur-sm;
+  }
+  
+  .step-title {
+    @apply flex items-center space-x-3 mb-4 p-3 rounded-lg bg-gradient-to-r from-blue-600/10 to-white/10 dark:from-blue-600/5 dark:to-white/5 border border-blue-600/20 dark:border-blue-600/10 backdrop-blur-sm;
+  }
+  
+  .step-number {
+    @apply inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600/20 text-blue-700 dark:text-blue-300 text-sm font-bold ring-2 ring-blue-600/30;
+  }
+  
+  .step-content {
+    @apply space-y-4 pl-4 border-l-2 border-blue-600/20 dark:border-blue-600/10;
+  }
+  
+  .docs-gradient-bg {
+    background: linear-gradient(135deg, rgba(144,224,239,0.05) 0%, rgba(0,180,216,0.03) 50%, rgba(0,119,182,0.05) 100%);
+  }
+  
+  .docs-card {
+    @apply rounded-xl border border-white/10 dark:border-white/5 bg-white/20 dark:bg-dark-800/30 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300;
+  }
+  
+  .docs-card:hover {
+    @apply border-white/20 dark:border-white/10 bg-white/30 dark:bg-dark-700/40;
+  }
   /* Loading animations */
   @keyframes shimmer {
     0% {
@@ -193,4 +265,57 @@
     background-size: 80px 80px, 80px 80px;
     background-position: -1px -1px, -1px -1px;
   }
+}
+
+/* Custom Scrollbar Styling */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.dark * {
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+/* Section Headers */
+.section-header {
+  @apply mt-2 -mb-10 -ml-2 pt-2 border-t border-white/10 dark:border-white/5 text-right;
+}
+
+.section-header h2 {
+  @apply inline-block px-6 py-2 rounded-l-full border border-blue-600/30 dark:border-blue-400/30 bg-blue-600/10 dark:bg-blue-600/5 backdrop-blur-sm;
 } 

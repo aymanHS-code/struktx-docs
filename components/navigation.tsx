@@ -3,14 +3,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Menu, X, Github } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useTheme } from '@/lib/theme'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
 
 export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
-  const { theme } = useTheme()
 
 
   return (
@@ -24,7 +22,7 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-          {}
+          <Link href="/docs" className="text-sm hover:underline">Docs</Link>
           </div>
 
           {/* Desktop Actions */}
@@ -56,7 +54,7 @@ export function Navigation() {
             className="md:hidden bg-white dark:bg-dark-900 border-b border-dark-200 dark:border-dark-700"
           >
             <div className="px-4 py-4 space-y-4">
-              {}
+              <Link href="/docs" className="block text-base" onClick={() => setIsOpen(false)}>Docs</Link>
               <div className="pt-4 border-t border-dark-200 dark:border-dark-700">
                 <div className="flex items-center justify-between">
                 <ThemeToggle />
