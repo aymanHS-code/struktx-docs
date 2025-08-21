@@ -68,8 +68,8 @@ export default function Iridescence({
     const ctn = ctnDom.current;
     const renderer = new Renderer();
     const gl = renderer.gl;
-    // Use transparent clear to avoid any white flash before first render
-    gl.clearColor(0, 0, 0, 0);
+    // Opaque dark clear to avoid any white frame pre-first-draw
+    gl.clearColor(0.043, 0.071, 0.125, 1.0); // #0b1220
 
     let program: Program;
 
@@ -109,11 +109,16 @@ export default function Iridescence({
 
     const mesh = new Mesh(gl, { geometry, program });
     let animateId: number;
+    let firstFrameSignaled = false;
 
     function update(t: number) {
       animateId = requestAnimationFrame(update);
       program.uniforms.uTime.value = t * 0.001;
       renderer.render({ scene: mesh });
+      if (!firstFrameSignaled) {
+        firstFrameSignaled = true;
+        try { window.dispatchEvent(new Event('webgl-frame')) } catch {}
+      }
     }
     animateId = requestAnimationFrame(update);
     ctn.appendChild(gl.canvas);

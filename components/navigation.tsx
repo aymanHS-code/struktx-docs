@@ -1,8 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
-import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -69,7 +68,7 @@ export function Navigation() {
             className="md:hidden bg-white dark:bg-dark-900 border-b border-dark-200 dark:border-dark-700"
           >
             <div className="px-4 py-4 space-y-4">
-              <Link href="/docs" className="block text-base" onClick={() => setIsOpen(false)}>Docs</Link>
+              <Link href="/docs" className="block text-base" onClick={() => { setIsOpen(false); try { const ev = new Event('docs-nav'); window.dispatchEvent(ev) } catch {} }}>Docs</Link>
               <div className="pt-4 border-t border-dark-200 dark:border-dark-700">
                 <div className="flex items-center justify-between">
                 <ThemeToggle />

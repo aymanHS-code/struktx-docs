@@ -90,6 +90,7 @@ const LightRays: React.FC<LightRaysProps> = ({
   const animationIdRef = useRef<number | null>(null);
   const meshRef = useRef<any>(null);
   const cleanupFunctionRef = useRef<(() => void) | null>(null);
+  const signaledFirstFrameRef = useRef(false);
   const [isVisible, setIsVisible] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -140,8 +141,8 @@ const LightRays: React.FC<LightRaysProps> = ({
       const gl = renderer.gl;
       gl.canvas.style.width = "100%";
       gl.canvas.style.height = "100%";
-      // Transparent clear to avoid flashing the default white
-      gl.clearColor(0, 0, 0, 0);
+      // Opaque dark clear to avoid any white frame pre-first-draw
+      gl.clearColor(0.043, 0.071, 0.125, 1.0); // #0b1220
 
       while (containerRef.current.firstChild) {
         containerRef.current.removeChild(containerRef.current.firstChild);
@@ -324,6 +325,10 @@ void main() {
 
         try {
           renderer.render({ scene: mesh });
+          if (!signaledFirstFrameRef.current) {
+            signaledFirstFrameRef.current = true;
+            try { window.dispatchEvent(new Event('webgl-frame')) } catch {}
+          }
           animationIdRef.current = requestAnimationFrame(loop);
         } catch (error) {
           console.warn("WebGL rendering error:", error);

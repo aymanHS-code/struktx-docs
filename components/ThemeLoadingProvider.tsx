@@ -1,7 +1,7 @@
 "use client"
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 type Theme = 'light' | 'dark'
 
@@ -29,7 +29,7 @@ export function useTheme() {
 
 export default function ThemeLoadingProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('light')
-  const router = useRouter()
+  const [overlayVisible, setOverlayVisible] = useState(false)
   const pathname = usePathname()
 
   useEffect(() => {
@@ -49,46 +49,74 @@ export default function ThemeLoadingProvider({ children }: { children: React.Rea
   }, [theme])
 
   React.useEffect(() => {
-    // No longer needed since we handle background via CSS
+    // Hide overlay explicitly on route settle
+    const handleLoad = () => setOverlayVisible(false)
+    window.addEventListener('load', handleLoad)
+    return () => window.removeEventListener('load', handleLoad)
   }, [pathname])
 
   const toggleTheme = () => {
+    // Apply an overlay during theme swap to prevent any background flicker
+    setOverlayVisible(true)
     setTheme(prev => prev === 'dark' ? 'light' : 'dark')
+    // Hide when first WebGL frame signals, fallback after 1200ms
+    const off = () => { setOverlayVisible(false); window.removeEventListener('webgl-frame', off) }
+    window.addEventListener('webgl-frame', off)
+    setTimeout(off, 1200)
   }
 
   const fadeToDocs = React.useCallback(() => {
     try {
       if (typeof document !== 'undefined') {
-        // Force dark background immediately
-        document.documentElement.style.backgroundColor = '#0b1220'
-        document.body.style.backgroundColor = '#0b1220'
-        
-        // Also set on any existing elements
-        const allElements = document.querySelectorAll('*')
-        allElements.forEach(el => {
-          if (el instanceof HTMLElement) {
-            el.style.backgroundColor = '#0b1220'
-          }
+        // Add a dark overlay to mask any repaint flashes during navigation
+        const overlay = document.createElement('div')
+        overlay.style.position = 'fixed'
+        overlay.style.inset = '0'
+        overlay.style.background = '#0b1220'
+        overlay.style.zIndex = '2147483646'
+        overlay.style.pointerEvents = 'none'
+        overlay.style.opacity = '0'
+        overlay.style.transition = 'opacity 200ms ease-out'
+        document.body.appendChild(overlay)
+        requestAnimationFrame(() => {
+          overlay.style.opacity = '1'
         })
-        
-        // Reset after navigation completes
-        setTimeout(() => {
-          document.documentElement.style.backgroundColor = ''
-          document.body.style.backgroundColor = ''
-          allElements.forEach(el => {
-            if (el instanceof HTMLElement) {
-              el.style.backgroundColor = ''
-            }
-          })
-        }, 2000)
+        // Remove overlay when WebGL is ready, or fallback
+        const cleanup = () => {
+          overlay.style.opacity = '0'
+          setTimeout(() => {
+            overlay.parentNode && overlay.parentNode.removeChild(overlay)
+          }, 220)
+          window.removeEventListener('webgl-frame', cleanup)
+          window.removeEventListener('load', cleanup)
+        }
+        window.addEventListener('webgl-frame', cleanup)
+        window.addEventListener('load', cleanup)
+        setTimeout(cleanup, 1500)
       }
     } catch {}
   }, [])
 
+  // Allow external consumers (like mobile nav) to request overlay
+  useEffect(() => {
+    const handler = () => fadeToDocs()
+    window.addEventListener('docs-nav', handler)
+    return () => window.removeEventListener('docs-nav', handler)
+  }, [fadeToDocs])
+
+  const themeCtxValue = useMemo(() => ({ theme, toggleTheme }), [theme])
+  const transitionCtxValue = useMemo(() => ({ fadeToDocs }), [fadeToDocs])
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      <TransitionContext.Provider value={{ fadeToDocs }}>
-        <div className="relative">{children}</div>
+    <ThemeContext.Provider value={themeCtxValue}>
+      <TransitionContext.Provider value={transitionCtxValue}>
+        <div className="relative">
+          {/* Overlay during theme transitions */}
+          {overlayVisible && (
+            <div className="fixed inset-0" style={{ backgroundColor: '#0b1220', zIndex: 2147483646, pointerEvents: 'none', transition: 'opacity 200ms ease-out', opacity: 1 }} />
+          )}
+          {children}
+        </div>
       </TransitionContext.Provider>
     </ThemeContext.Provider>
   )
