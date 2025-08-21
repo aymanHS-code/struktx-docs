@@ -758,11 +758,11 @@ for _ in range(5):
         <p><b>How is memory injected?</b> If <code>MemoryConfig.augment_llm=True</code>, <code>MemoryAugmentedLLMClient</code> retrieves relevant docs and prepends them to prompts.</p>
       </section>
 
+      <div className="section-header">
+        <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-white dark:from-blue-400 dark:to-white">Extras</h2>
+      </div>
       <section id="extras" className="section">
-        <h3 className="text-xl font-semibold">Extras</h3>
-        
-        <h4 className="text-lg font-semibold">MCP Server</h4>
-        
+        <h3 className="text-xl font-semibold">MCP Server</h3>
         <h5 className="concept-badge-inline text-md font-semibold">Claude Desktop</h5>
         <CodeBlock className="code-block" language="json" filename="claude_desktop_config.json" code={`{
   "mcpServers": {
